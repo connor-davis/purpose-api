@@ -18,6 +18,8 @@ let JwtStrategy = require('./strategies/jwt');
 let session = require('express-session');
 let swaggerJsdoc = require('swagger-jsdoc');
 let swaggerUi = require('swagger-ui-express');
+let morgan = require("morgan");
+let chalk = require("chalk");
 let { readTransaction } = require('./utils/neo4j');
 let { GET_USER } = require('./queries/userQuerys');
 let io = require('socket.io')(http);
@@ -55,7 +57,17 @@ let port = process.env.HTTP_PORT || 3000;
   };
 
   let openapiSpecification = swaggerJsdoc(options);
-  
+
+  let morganMiddleware = morgan(function (tokens, req, res) {
+    return [
+        chalk.hex('#c7e057').bold(tokens.method(req, res)),
+        chalk.hex('#ffffff').bold(tokens.status(req, res)),
+        chalk.hex('#262626').bold(tokens.url(req, res)),
+        chalk.hex('#c7e057').bold(tokens['response-time'](req, res) + ' ms'),
+    ].join(' ');
+});
+
+  app.use(morganMiddleware);
   app.use(cors('*'));
   app.use(compression());
   app.use(json());
@@ -93,6 +105,10 @@ let port = process.env.HTTP_PORT || 3000;
 
   app.get('/', async (request, response) => {
     response.render('pages/welcome');
+  });
+
+  app.get('/visualize', async (request, response) => {
+    response.render('pages/visualize');
   });
 
   app.get('/**', async (request, response) => {

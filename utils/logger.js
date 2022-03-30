@@ -2,33 +2,33 @@ let chalk = require('chalk');
 let moment = require('moment');
 
 let success = (m) => {
-  let daystamp = chalk.italic(moment().format('DD/MM/YYYY'));
-  let timestamp = chalk.italic(moment().format('HH:MM:SS'));
-  let message = chalk.green(m);
+  let daystamp = chalk.hex('#c7e057').bold(moment().format('DD/MM/YYYY'));
+  let timestamp = chalk.hex('#ffffff').bold(moment().format('HH:MM:SS'));
+  let message = chalk.hex('#22c55e').visible(m);
 
   console.log(`${daystamp} - ${timestamp} - ${message}`);
 };
 
 let warning = (m) => {
-  let daystamp = chalk.italic(moment().format('DD/MM/YYYY'));
-  let timestamp = chalk.italic(moment().format('HH:MM:SS'));
-  let message = chalk.yellow(m);
+  let daystamp = chalk.hex('#262626').bold(moment().format('DD/MM/YYYY'));
+  let timestamp = chalk.hex('#ffffff').bold(moment().format('HH:MM:SS'));
+  let message = chalk.hex('#eab308').visible(m);
 
   console.log(`${daystamp} - ${timestamp} - ${message}`);
 };
 
 let error = (m) => {
-  let daystamp = chalk.italic(moment().format('DD/MM/YYYY'));
-  let timestamp = chalk.italic(moment().format('HH:MM:SS'));
-  let message = chalk.red(m);
+  let daystamp = chalk.hex('#262626').bold(moment().format('DD/MM/YYYY'));
+  let timestamp = chalk.hex('#ffffff').bold(moment().format('HH:MM:SS'));
+  let message = chalk.hex('#ef4444').visible(m);
 
   console.log(`${daystamp} - ${timestamp} - ${message}`);
 };
 
 let info = (m) => {
-  let daystamp = chalk.italic(moment().format('DD/MM/YYYY'));
-  let timestamp = chalk.italic(moment().format('HH:MM:SS'));
-  let message = chalk.gray(m);
+  let daystamp = chalk.hex('#c7e057').bold(moment().format('DD/MM/YYYY'));
+  let timestamp = chalk.hex('#ffffff').bold(moment().format('HH:MM:SS'));
+  let message = chalk.hex('#262626').visible(m);
 
   console.log(`${daystamp} - ${timestamp} - ${message}`);
 };

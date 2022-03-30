@@ -2,6 +2,7 @@ let { Router } = require('express');
 let router = Router();
 
 let authenticationRoutes = require('./authentication');
+let usersRoutes = require('./users');
 
 /**
  * @openapi
@@ -18,7 +19,10 @@ let authenticationRoutes = require('./authentication');
  * tags:
  *   - name: Authentication
  *     description: Api authentication routes.
+ *   - name: Users
+ *     description: Api users routes.
  */
 router.use('/auth', authenticationRoutes);
+router.use('/users', usersRoutes);
 
 module.exports = router;

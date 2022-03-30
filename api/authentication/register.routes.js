@@ -55,10 +55,7 @@ router.post('/', async (request, response) => {
         .json({ message: 'Error while registering a new user.', error });
     else {
       let record = result.records[0];
-      let data = {
-        id: record.get(0),
-        email: record.get(1),
-      };
+      let data = record.get("user");
 
       return response.status(200).json({
         message: 'Successfully registered new user.',

@@ -39,10 +39,11 @@ router.post('/', async (request, response) => {
         .json({ message: 'Error while checking if passwords match.', error });
     else {
       let record = result.records[0];
-      let password = record.get(2);
+      let password = record.get(3);
       let data = {
         id: record.get(0),
         email: record.get(1),
+        lastLogin: record.get(2)
       };
 
       if (bcrypt.compareSync(body.password, password)) {
