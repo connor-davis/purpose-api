@@ -32,7 +32,7 @@ module.exports = {
    */
   CREATE_USER: (data) => {
     return {
-      statement: `CREATE (user:User { id: $id, email: $email, password: $password })`,
+      statement: `CREATE (user:User { id: $id, email: $email, password: $password }) RETURN user.id, user.email`,
       data,
     };
   },

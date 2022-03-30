@@ -5,7 +5,7 @@ let bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
 let fs = require('fs');
 let { writeTransaction } = require('../../utils/neo4j');
-let { REGISTER_USER } = require('../../queries/userQuerys');
+let { CREATE_USER } = require('../../queries/userQuerys');
 
 /**
  * @openapi
@@ -48,12 +48,18 @@ router.post('/', async (request, response) => {
     { expiresIn: '1d', algorithm: 'RS256' }
   );
 
-  writeTransaction(REGISTER_USER(data), (error, result) => {
+  writeTransaction(CREATE_USER(data), (error, result) => {
     if (error)
       return response
         .status(500)
         .json({ message: 'Error while registering a new user.', error });
-    else
+    else {
+      let record = result.records[0];
+      let data = {
+        id: record.get(0),
+        email: record.get(1),
+      };
+
       return response.status(200).json({
         message: 'Successfully registered new user.',
         data: {
@@ -62,6 +68,7 @@ router.post('/', async (request, response) => {
           authenticationToken: token,
         },
       });
+    }
   });
 });
 
