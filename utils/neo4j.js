@@ -1,5 +1,5 @@
 let neo4j = require('neo4j-driver');
-let logger = require("./logger");
+let logger = require('./logger');
 
 let neo4jUrl = process.env.NEO4J_URL;
 
@@ -19,11 +19,15 @@ let writeTransaction = async (query, callback) => {
   await session.writeTransaction((tx) =>
     query.data
       ? tx.run(query.statement, query.data).then(
-          (success) => callback(null, success),
+          (success) => {
+            callback(null, success);
+          },
           (error) => callback(error, null)
         )
       : tx.run(query.statement).then(
-          (success) => callback(null, success),
+          (success) => {
+            callback(null, success);
+          },
           (error) => callback(error, null)
         )
   );
@@ -38,11 +42,15 @@ let readTransaction = async (query, callback) => {
   await session.readTransaction((tx) =>
     query.data
       ? tx.run(query.statement, query.data).then(
-          (success) => callback(null, success),
+          (success) => {
+            callback(null, success);
+          },
           (error) => callback(error, null)
         )
       : tx.run(query.statement).then(
-          (success) => callback(null, success),
+          (success) => {
+            callback(null, success);
+          },
           (error) => callback(error, null)
         )
   );

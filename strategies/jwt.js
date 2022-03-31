@@ -16,20 +16,21 @@ let options = {
 
 module.exports = new Strategy(options, async (payload, done) => {
   readTransaction(GET_USER({ id: payload.sub }), (error, result) => {
-    let record = result.records[0];
-    let data = {
-      id: record.get(0),
-      email: record.get(1),
-    };
-
     if (error) {
       return done(error, null);
-    }
-
-    if (data) {
-      return done(null, data);
     } else {
-      return done('no-user', null);
+      let record = result.records[0];
+
+      let data = {
+        id: record.get(0),
+        email: record.get(1),
+      };
+
+      if (data) {
+        return done(null, data);
+      } else {
+        return done('no-user', null);
+      }
     }
   });
 });
