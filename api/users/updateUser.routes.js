@@ -24,7 +24,7 @@ let router = Router();
 router.put('/', async (request, response) => {
   let { body, user } = request;
 
-  writeTransaction(
+  await writeTransaction(
     UPDATE_USER({ ...body, email: body.email || user.email }),
     (error, result) => {
       if (error)

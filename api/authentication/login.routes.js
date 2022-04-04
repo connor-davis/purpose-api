@@ -32,7 +32,7 @@ router.post('/', async (request, response) => {
     encoding: 'utf-8',
   });
 
-  readTransaction(GET_USER({ email: body.email }), (error, result) => {
+  await readTransaction(GET_USER({ email: body.email }), (error, result) => {
     if (error)
       return response
         .status(500)

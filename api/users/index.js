@@ -26,7 +26,7 @@ router.get(
   '/',
   passport.authenticate('jwt', { session: false }),
   async (request, response) => {
-    readTransaction(
+    await readTransaction(
       GET_USER({ email: request.user.email }),
       (error, result) => {
         if (error)

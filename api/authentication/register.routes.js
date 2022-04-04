@@ -48,7 +48,7 @@ router.post('/', async (request, response) => {
     { expiresIn: '1d', algorithm: 'RS256' }
   );
 
-  writeTransaction(CREATE_USER(data), (error, result) => {
+  await writeTransaction(CREATE_USER(data), (error, result) => {
     if (error)
       return response
         .status(500)
