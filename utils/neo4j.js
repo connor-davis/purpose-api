@@ -4,56 +4,54 @@ let logger = require('./logger');
 let neo4jUrl = process.env.NEO4J_URL;
 
 let driver = neo4j.driver(
-  neo4jUrl,
-  neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
+    neo4jUrl,
+    neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
 );
 
 let writeTransaction = async (query, callback) => {
-  let session = driver.session({
-    database: process.env.NEO4J_DATABASE,
-    defaultAccessMode: neo4j.session.WRITE,
-  });
+    let session = driver.session({
+        database: process.env.NEO4J_DATABASE,
+        defaultAccessMode: neo4j.session.WRITE,
+    });
 
-  // logger.info(query.statement)
-
-  await session.writeTransaction((tx) =>
-    query.data
-      ? tx.run(query.statement, query.data).then(
-          (success) => {
-            callback(null, success);
-          },
-          (error) => callback(error, null)
-        )
-      : tx.run(query.statement).then(
-          (success) => {
-            callback(null, success);
-          },
-          (error) => callback(error, null)
-        )
-  );
+    await session.writeTransaction((tx) =>
+        query.data
+            ? tx.run(query.statement, query.data).then(
+                (success) => {
+                    callback(null, success);
+                },
+                (error) => callback(error, null)
+            )
+            : tx.run(query.statement).then(
+                (success) => {
+                    callback(null, success);
+                },
+                (error) => callback(error, null)
+            )
+    );
 };
 
 let readTransaction = async (query, callback) => {
-  let session = driver.session({
-    database: process.env.NEO4J_DATABASE,
-    defaultAccessMode: neo4j.session.WRITE,
-  });
+    let session = driver.session({
+        database: process.env.NEO4J_DATABASE,
+        defaultAccessMode: neo4j.session.WRITE,
+    });
 
-  await session.readTransaction((tx) =>
-    query.data
-      ? tx.run(query.statement, query.data).then(
-          (success) => {
-            callback(null, success);
-          },
-          (error) => callback(error, null)
-        )
-      : tx.run(query.statement).then(
-          (success) => {
-            callback(null, success);
-          },
-          (error) => callback(error, null)
-        )
-  );
+    await session.readTransaction((tx) =>
+        query.data
+            ? tx.run(query.statement, query.data).then(
+                (success) => {
+                    callback(null, success);
+                },
+                (error) => callback(error, null)
+            )
+            : tx.run(query.statement).then(
+                (success) => {
+                    callback(null, success);
+                },
+                (error) => callback(error, null)
+            )
+    );
 };
 
-module.exports = { writeTransaction, readTransaction };
+module.exports = {writeTransaction, readTransaction};
