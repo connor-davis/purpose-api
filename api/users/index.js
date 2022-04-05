@@ -36,11 +36,7 @@ router.get(
         else {
           let record = result.records[0];
 
-          let data = {
-            id: record.get(0),
-            email: record.get(1),
-            lastLogin: record.get(2),
-          };
+          let data = record.get("user");
 
           return response.status(200).json({ data });
         }

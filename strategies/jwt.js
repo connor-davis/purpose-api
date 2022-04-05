@@ -15,16 +15,15 @@ let options = {
 };
 
 module.exports = new Strategy(options, async (payload, done) => {
-  readTransaction(GET_USER({ id: payload.sub }), (error, result) => {
+  await readTransaction(GET_USER({ id: payload.sub }), (error, result) => {
     if (error) {
       return done(error, null);
     } else {
       let record = result.records[0];
 
-      let data = {
-        id: record.get(0),
-        email: record.get(1),
-      };
+      console.log(record);
+
+      let data = record.get("user");
 
       if (data) {
         return done(null, data);
