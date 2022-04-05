@@ -1,19 +1,19 @@
 let {Router} = require('express');
-let {DELETE_USER} = require('../../queries/userQuerys');
 let {writeTransaction} = require('../../utils/neo4j');
+let {DELETE_PRODUCT} = require("../../queries/productQuerys");
 let router = Router();
 
 /**
  * @openapi
- * /api/v1/users:
+ * /api/v1/products:
  *   delete:
- *     description: Delete an existing user.
- *     tags: [Users]
+ *     description: Delete an existing product.
+ *     tags: [Products]
  *     produces:
  *       - application/json
  *     parameters:
- *       - name: email
- *         description: The user's email.
+ *       - name: id
+ *         description: The products id.
  *         type: string
  *     responses:
  *       200:
@@ -21,10 +21,10 @@ let router = Router();
  *       401:
  *         description: Returns "Unauthorized".
  */
-router.delete('/:email', async (request, response) => {
+router.delete('/:id', async (request, response) => {
     let {params} = request;
 
-    await writeTransaction(DELETE_USER(params.email), (error, result) => {
+    await writeTransaction(DELETE_PRODUCT(params.id), (error, result) => {
         if (error)
             return response
                 .status(200)

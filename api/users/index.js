@@ -13,12 +13,12 @@ let updateUserRoutes = require("./updateUser.routes");
  *     description: Retrieve the users data.
  *     tags: [Users]
  *     produces:
- *       - application/text
+ *       - application/json
  *     security:
  *       - Bearer: []
  *     responses:
  *       200:
- *         description: Returns the users data.
+ *         description: Returns the user's data.
  *       401:
  *         description: Returns "Unauthorized".
  */

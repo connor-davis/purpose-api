@@ -21,8 +21,6 @@ module.exports = new Strategy(options, async (payload, done) => {
     } else {
       let record = result.records[0];
 
-      console.log(record);
-
       let data = record.get("user");
 
       if (data) {

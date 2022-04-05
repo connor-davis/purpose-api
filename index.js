@@ -83,14 +83,11 @@ let port = process.env.HTTP_PORT || 3000;
     });
 
     passport.deserializeUser(async (id, done) => {
-        await readTransaction(GET_USER({id}), (error, result) => {
+        await readTransaction(GET_USER({id}, true), (error, result) => {
             let record = result.records[0];
             let data = record.get("user");
 
-            return done(null, {
-                id: data.id,
-                email: data.email
-            });
+            return done(null, data);
         });
     });
 

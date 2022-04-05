@@ -1,10 +1,11 @@
 module.exports = {
     /**
+     * @param {String} id The id of the user to match the products and return them.
      * @returns {{statement}}
      */
-    GET_PRODUCTS: () => {
+    GET_PRODUCTS: (id) => {
         return {
-            statement: `MATCH (product:Product) RETURN apoc.map.removeKey(product {.*}, '') as product`,
+            statement: `MATCH (user)-[:OWNS]->(product:Product) WHERE user.id = "${id}" RETURN apoc.map.removeKey(product {.*}, '') as product`,
         };
     },
     /**
@@ -14,7 +15,7 @@ module.exports = {
      */
     GET_PRODUCT: (id) => {
         return {
-            statement: `MATCH (product:Product) WHERE product.id = ${id} WITH apoc.map.removeKey(product {.*}, '') as product RETURN product`
+            statement: `MATCH (product:Product) WHERE product.id = "${id}" WITH apoc.map.removeKey(product {.*}, '') as product RETURN product`
         };
     },
     /**
@@ -61,7 +62,7 @@ module.exports = {
         let values = Object.values(data);
 
         return {
-            statement: `MERGE (product:Product { id: "${id}" }) SET ${values.join(', ')} RETURN product`
+            statement: `MERGE (product:Product { id: "${id}" }) SET ${values.join(', ')} WITH apoc.map.removeKey(product {.*}, '') as product RETURN product`
         };
     },
     /**
@@ -73,7 +74,7 @@ module.exports = {
         if (!id) throw "Id is undefined for DELETE_PRODUCT";
 
         return {
-            statement: ``
+            statement: `MATCH (product:Product { id: "${id}" }) DETACH DELETE product`
         }
     }
 };
