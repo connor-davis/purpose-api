@@ -1,7 +1,8 @@
 let { Router } = require('express');
-const { UPDATE_USER } = require('../../queries/userQuerys');
-const { writeTransaction } = require('../../utils/neo4j');
+let { UPDATE_USER } = require('../../queries/userQuerys');
+let { writeTransaction } = require('../../utils/neo4j');
 let router = Router();
+let logger = require('../../utils/logger');
 
 /**
  * @openapi
@@ -33,9 +34,11 @@ router.put('/', async (request, response) => {
           .json({ message: 'Error while updating a user.', error });
       else {
         let record = result.records[0];
-        let data = record.get("user");
+        let data = {};
 
-        return response.status(200).json({ data });
+        record.keys.forEach((key) => (data[key] = record.get(key)));
+
+        return response.status(200).json({ data: body });
       }
     }
   );

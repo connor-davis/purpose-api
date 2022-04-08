@@ -22,3 +22,5 @@ NEO4J_DATABASE=YourDATABASE
 - Spin up the server with ```yarn start```
 
 Once that is done, access the api docs from ```printedurl/api/v1/docs```
+
+Thank you for using our software.

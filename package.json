@@ -36,11 +36,13 @@
     "socket.io": "^4.4.1",
     "swagger-jsdoc": "^6.1.0",
     "swagger-ui-express": "^4.3.0",
+    "terminal-kit": "^2.4.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.1",
     "autoprefixer": "^10.4.2",
+    "openapi-types": "^10.0.0",
     "postcss": "^8.4.6",
     "tailwindcss": "^3.0.18"
   }
