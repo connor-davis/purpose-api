@@ -26,7 +26,7 @@ router.put('/', async (request, response) => {
   let { body, user } = request;
 
   await writeTransaction(
-    UPDATE_USER({ ...body, email: body.email || user.email }),
+    UPDATE_USER({ ...body, email: body.email || user.email }, true),
     (error, result) => {
       if (error)
         return response
@@ -38,7 +38,7 @@ router.put('/', async (request, response) => {
 
         record.keys.forEach((key) => (data[key] = record.get(key)));
 
-        return response.status(200).json({ data: body });
+        return response.status(200).json({ data });
       }
     }
   );

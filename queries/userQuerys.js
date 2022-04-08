@@ -45,7 +45,7 @@ module.exports = {
    * @param data.email This value has to be passed
    *
    * @returns {{statement}}
-   */ UPDATE_USER: (data) => {
+   */ UPDATE_USER: (data, specific = false) => {
     if (!data.email) throw 'Email is undefined for UPDATE_USER';
 
     let email = data.email;
@@ -62,9 +62,9 @@ module.exports = {
     return {
       statement: `MERGE (user:User { email: "${email}" }) SET ${values.join(
         ', '
-      )} WITH apoc.map.removeKey(user {.*}, 'password') as user RETURN ${returns.join(
-        ', '
-      )}`,
+      )} WITH apoc.map.removeKey(user {.*}, 'password') as user RETURN ${
+        specific ? returns.join(', ') : 'user'
+      }`,
     };
   },
   /**
