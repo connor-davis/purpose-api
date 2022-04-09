@@ -5,3 +5,5 @@ dist
 ssl
 certs
 *.bat
+/.idea/vcs.xml
+/.idea/workspace.xml
