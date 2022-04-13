@@ -1,12 +1,12 @@
-let {Router} = require('express');
+let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
 
-let createProductRoutes = require("./createProduct.routes");
-let updateProductRoutes = require("./updateProduct.routes");
-let deleteProductRoutes = require("./deleteProduct.routes");
-let {readTransaction} = require("../../utils/neo4j");
-let {GET_PRODUCTS, GET_PRODUCT} = require("../../queries/productQuerys");
+let createProductRoutes = require('./createProduct.routes');
+let updateProductRoutes = require('./updateProduct.routes');
+let deleteProductRoutes = require('./deleteProduct.routes');
+let { readTransaction } = require('../../utils/neo4j');
+let { GET_PRODUCTS, GET_PRODUCT } = require('../../queries/productQuerys');
 
 /**
  * @openapi
@@ -25,29 +25,24 @@ let {GET_PRODUCTS, GET_PRODUCT} = require("../../queries/productQuerys");
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/',
-    passport.authenticate('jwt', {session: false}),
-    async (request, response) => {
-        let {user} = request;
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { user } = request;
 
-        console.log(user);
+    await readTransaction(GET_PRODUCTS(user.id), (error, result) => {
+      if (error)
+        return response
+          .status(200)
+          .json({ message: 'Error while retrieving user products.', error });
+      else {
+        let records = result.records;
+        let data = records.map((record) => record.get('product'));
 
-        await readTransaction(
-            GET_PRODUCTS(user.id),
-            (error, result) => {
-                if (error)
-                    return response
-                        .status(200)
-                        .json({message: 'Error while retrieving user products.', error});
-                else {
-                    let records = result.records;
-                    let data = records.map((record) => record.get("product"))
-
-                    return response.status(200).json({data});
-                }
-            }
-        );
-    }
+        return response.status(200).json({ data });
+      }
+    });
+  }
 );
 
 /**
@@ -67,37 +62,47 @@ router.get(
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/:id',
-    passport.authenticate('jwt', {session: false}),
-    async (request, response) => {
-        let {params} = request;
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { params } = request;
 
-        await readTransaction(
-            GET_PRODUCT(params.id),
-            (error, result) => {
-                if (error)
-                    return response
-                        .status(200)
-                        .json({message: 'Error while retrieving user products.', error});
-                else {
-                    let record = result.records[0];
+    await readTransaction(GET_PRODUCT(params.id), (error, result) => {
+      if (error)
+        return response
+          .status(200)
+          .json({ message: 'Error while retrieving user products.', error });
+      else {
+        let record = result.records[0];
 
-                    if (record) {
-                        let data = record.get("product");
+        if (record) {
+          let data = record.get('product');
 
-                        return response.status(200).json({data});
-                    } else return response.status(200).json({
-                        message: 'Product not found.',
-                        error: "product-not-found"
-                    });
-                }
-            }
-        );
-    }
+          return response.status(200).json({ data });
+        } else
+          return response.status(200).json({
+            message: 'Product not found.',
+            error: 'product-not-found',
+          });
+      }
+    });
+  }
 );
 
-router.use("/", passport.authenticate("jwt", {session: false}), createProductRoutes);
-router.use("/", passport.authenticate("jwt", {session: false}), updateProductRoutes);
-router.use("/", passport.authenticate("jwt", {session: false}), deleteProductRoutes);
+router.use(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  createProductRoutes
+);
+router.use(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  updateProductRoutes
+);
+router.use(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  deleteProductRoutes
+);
 
 module.exports = router;

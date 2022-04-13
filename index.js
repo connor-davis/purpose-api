@@ -60,9 +60,9 @@ let port = process.env.HTTP_PORT || 3000;
 
   let morganMiddleware = morgan(function (tokens, req, res) {
     return [
-      chalk.hex('#c7e057').bold(tokens.method(req, res)),
-      chalk.hex('#ffffff').bold(tokens.status(req, res)),
-      chalk.hex('#262626').bold(tokens.url(req, res)),
+      chalk.hex('#c7e057').bold(tokens.method(req, res) + "\t"),
+      chalk.hex('#ffffff').bold(tokens.status(req, res) + "\t"),
+      chalk.hex('#262626').bold(tokens.url(req, res) + "\t\t\t"),
       chalk.hex('#c7e057').bold(tokens['response-time'](req, res) + ' ms'),
     ].join(' ');
   });
