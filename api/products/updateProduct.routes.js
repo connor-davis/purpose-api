@@ -1,7 +1,7 @@
-let {Router} = require('express');
-let {writeTransaction} = require('../../utils/neo4j');
-let {CREATE_PRODUCT, UPDATE_PRODUCT} = require("../../queries/productQuerys");
-let {v4} = require("uuid");
+let { Router } = require('express');
+let { writeTransaction } = require('../../utils/neo4j');
+let { CREATE_PRODUCT, UPDATE_PRODUCT } = require('../../queries/productQuerys');
+let { v4 } = require('uuid');
 let router = Router();
 
 /**
@@ -21,21 +21,21 @@ let router = Router();
  *       401:
  *         description: Returns "Unauthorized".
  */
-router.post('/', async (request, response) => {
-    let {body} = request;
+router.put('/', async (request, response) => {
+  let { body } = request;
 
-    await writeTransaction(UPDATE_PRODUCT(body), (error, result) => {
-        if (error)
-            return response
-                .status(200)
-                .json({message: 'Error while updating a product.', error});
-        else {
-            let record = result.records[0];
-            let data = record.get("product");
+  await writeTransaction(UPDATE_PRODUCT(body), (error, result) => {
+    if (error)
+      return response
+        .status(200)
+        .json({ message: 'Error while updating a product.', error });
+    else {
+      let record = result.records[0];
+      let data = record.get('product');
 
-            return response.status(200).json({data});
-        }
-    });
+      return response.status(200).json({ data });
+    }
+  });
 });
 
 module.exports = router;
