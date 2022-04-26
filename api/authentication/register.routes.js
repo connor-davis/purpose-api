@@ -49,13 +49,15 @@ router.post('/', async (request, response) => {
   );
 
   await writeTransaction(CREATE_USER(data), (error, result) => {
+    console.log(error, result);
+
     if (error)
       return response
         .status(500)
         .json({ message: 'Error while registering a new user.', error });
     else {
       let record = result.records[0];
-      let data = record.get("user");
+      let data = record.get('user');
 
       return response.status(200).json({
         message: 'Successfully registered new user.',
