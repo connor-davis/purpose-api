@@ -1,9 +1,10 @@
-let {Router} = require('express');
+let { Router } = require('express');
 let router = Router();
 
 let authenticationRoutes = require('./authentication');
 let usersRoutes = require('./users');
-let productsRoutes = require("./products");
+let productsRoutes = require('./products');
+let salesRoutes = require('./sales');
 
 /**
  * @openapi
@@ -27,6 +28,7 @@ let productsRoutes = require("./products");
  */
 router.use('/auth', authenticationRoutes);
 router.use('/users', usersRoutes);
-router.use('/products', productsRoutes)
+router.use('/products', productsRoutes);
+router.use('/sales', salesRoutes);
 
 module.exports = router;

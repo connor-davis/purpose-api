@@ -29,13 +29,19 @@ let writeTransaction = async (query, callback) => {
           (success) => {
             callback(null, success);
           },
-          (error) => callback(error, null)
+          (error) => {
+            callback(error, null);
+            console.log(error);
+          }
         )
       : tx.run(query.statement).then(
           (success) => {
             callback(null, success);
           },
-          (error) => callback(error, null)
+          (error) => {
+            callback(error, null);
+            console.log(error);
+          }
         )
   );
 };
