@@ -20,16 +20,51 @@ let swaggerJsdoc = require('swagger-jsdoc');
 let swaggerUi = require('swagger-ui-express');
 let morgan = require('morgan');
 let chalk = require('chalk');
-let { readTransaction } = require('./utils/neo4j');
-let { GET_USER } = require('./queries/userQuerys');
-let io = require('socket.io')(http);
+let { readTransaction, writeTransaction } = require('./utils/neo4j');
+let { GET_USER, CREATE_USER } = require('./queries/userQuerys');
+let io = require('socket.io')(http, {
+  cors: {
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+  },
+});
 let apiRoutes = require('./api');
+let { v4 } = require('uuid');
+let bcrypt = require('bcrypt');
+const { ADD_ANNOUNCEMENT } = require('./queries/announcementQueries');
 
 let secure_port = process.env.HTTP_SECURE_PORT || 443;
 let port = process.env.HTTP_PORT || 3000;
 
 (async () => {
-  logger.info(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
+  logger.success(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
+
+  await readTransaction(
+    GET_USER({ email: 'admin@purposeapp' }),
+    async (error, result) => {
+      if (error) return console.log(error);
+      else {
+        let adminUser = result.records[0];
+
+        if (!adminUser) {
+          logger.warning('Admin user does not exist, creating them now.');
+
+          await writeTransaction(
+            CREATE_USER({
+              id: v4(),
+              email: 'admin@purposeapp',
+              password: bcrypt.hashSync(process.env.ROOT_PASSWORD, 2048),
+              type: 'admin',
+            }),
+            async (error, result) => {
+              if (error) return logger.error(error);
+              else return logger.success('Created admin user.');
+            }
+          );
+        }
+      }
+    }
+  );
 
   if (!devmode) {
     https = require('https').createServer(
@@ -42,7 +77,19 @@ let port = process.env.HTTP_PORT || 3000;
   }
 
   io.on('connection', (socket) => {
-    logger.info('a user connected to socket io');
+    logger.success('a user connected to socket io');
+
+    socket.on('announcement', (data) => {
+      let announcement = {
+        announcementTitle: data.data.announcementTitle,
+        announcementBody: data.data.announcementBody,
+        id: v4(),
+      };
+
+      writeTransaction(ADD_ANNOUNCEMENT(announcement), (error, result) => {});
+
+      socket.broadcast.emit('announcement', announcement);
+    });
   });
 
   let options = {
@@ -60,9 +107,9 @@ let port = process.env.HTTP_PORT || 3000;
 
   let morganMiddleware = morgan(function (tokens, req, res) {
     return [
-      chalk.hex('#c7e057').bold(tokens.method(req, res) + "\t"),
-      chalk.hex('#ffffff').bold(tokens.status(req, res) + "\t"),
-      chalk.hex('#262626').bold(tokens.url(req, res) + "\t\t\t"),
+      chalk.hex('#c7e057').bold(tokens.method(req, res) + '\t'),
+      chalk.hex('#ffffff').bold(tokens.status(req, res) + '\t'),
+      chalk.hex('#262626').bold(tokens.url(req, res) + '\t\t\t'),
       chalk.hex('#c7e057').bold(tokens['response-time'](req, res) + ' ms'),
     ].join(' ');
   });

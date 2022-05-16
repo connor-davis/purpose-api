@@ -14,7 +14,7 @@ let router = Router();
  *       - application/json
  *     parameters:
  *       - name: id
- *         description: The sales id.
+ *         description: The userData id.
  *         type: string
  *     responses:
  *       200:

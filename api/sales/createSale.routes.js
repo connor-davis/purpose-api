@@ -14,13 +14,13 @@ let router = Router();
  *       - application/json
  *     parameters:
  *       - name: product
- *         description: The sales product.
+ *         description: The userData product.
  *         type: object
  *       - name: numberSold
- *         description: The sales number sold.
+ *         description: The userData number sold.
  *         type: number
  *       - name: profit
- *         description: The sales profit.
+ *         description: The userData profit.
  *         type: number
  *     responses:
  *       200:

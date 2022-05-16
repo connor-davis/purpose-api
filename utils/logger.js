@@ -28,7 +28,7 @@ let error = (m) => {
 let info = (m) => {
   let daystamp = chalk.hex('#c7e057').bold(moment().format('DD/MM/YYYY'));
   let timestamp = chalk.hex('#ffffff').bold(moment().format('HH:MM:SS'));
-  let message = chalk.hex('#262626').visible(m);
+  let message = chalk.hex('#a3a3a3').visible(m);
 
   console.log(`${daystamp} - ${timestamp} - ${message}`);
 };

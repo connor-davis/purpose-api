@@ -14,7 +14,8 @@ module.exports = {
    *
    * @param {Boolean} hidePassword Whether to hide the password from the record or not.
    * @returns {{statement, data}}
-   */ GET_USER: (data, hidePassword = true) => {
+   */
+  GET_USER: (data, hidePassword = true) => {
     return {
       statement: `MATCH (user:User) WHERE ${
         data.id ? 'user.id = $id' : 'user.email = $email'
@@ -33,7 +34,8 @@ module.exports = {
    * @param data.password The users password
    *
    * @returns {{statement, data}}
-   */ CREATE_USER: (data) => {
+   */
+  CREATE_USER: (data) => {
     return {
       statement: `CREATE (user:User { id: $id, email: $email, password: $password }) WITH apoc.map.removeKey(user {.*}, 'password') as user RETURN user`,
       data,
@@ -45,7 +47,8 @@ module.exports = {
    * @param data.email This value has to be passed
    *
    * @returns {{statement}}
-   */ UPDATE_USER: (data, specific = false) => {
+   */
+  UPDATE_USER: (data, specific = false) => {
     if (!data.email) throw 'Email is undefined for UPDATE_USER';
 
     let email = data.email;
@@ -71,7 +74,8 @@ module.exports = {
    * @param email The email of the user that needs to be deleted.
    *
    * @returns {{statement}}
-   */ DELETE_USER: (email) => {
+   */
+  DELETE_USER: (email) => {
     if (!email) throw 'Email is undefined for DELETE_USER';
 
     return {

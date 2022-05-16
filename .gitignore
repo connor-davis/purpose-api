@@ -1,9 +1,11 @@
 node_modules
-dist
+/dist/**
 .env.*
 .env
-ssl
-certs
+/ssl/**
+/certs/**
 *.bat
 /.idea/vcs.xml
 /.idea/workspace.xml
+/documents/**
+/temp/**

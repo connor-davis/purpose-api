@@ -20,7 +20,7 @@ let { GET_SALES, GET_SALE } = require('../../queries/salesQuerys');
  *       - Bearer: []
  *     responses:
  *       200:
- *         description: Returns the users sales.
+ *         description: Returns the users userData.
  *       401:
  *         description: Returns "Unauthorized".
  */
@@ -34,7 +34,7 @@ router.get(
       if (error)
         return response
           .status(200)
-          .json({ message: 'Error while retrieving user sales.', error });
+          .json({ message: 'Error while retrieving user userData.', error });
       else {
         let records = result.records;
         let data = records.map((record) => {

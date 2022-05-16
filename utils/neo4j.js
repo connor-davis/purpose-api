@@ -8,13 +8,9 @@ let driver = neo4j.driver(
   neo4j.auth.basic(process.env.NEO4J_USER, process.env.NEO4J_PASSWORD)
 );
 
-logger.info(
-  `Database - ${neo4jUrl} (${process.env.NEO4J_USER}:${process.env.NEO4J_PASSWORD})`
-);
-
 driver
   .verifyConnectivity({ database: 'neo4j' })
-  .then((verified) => logger.info(JSON.stringify(verified)))
+  .then((verified) => logger.success(`Database - ${JSON.stringify(verified)}`))
   .catch((error) => logger.error(JSON.stringify(error)));
 
 let writeTransaction = async (query, callback) => {

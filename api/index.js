@@ -5,6 +5,10 @@ let authenticationRoutes = require('./authentication');
 let usersRoutes = require('./users');
 let productsRoutes = require('./products');
 let salesRoutes = require('./sales');
+let adminRoutes = require('./admin');
+let findCoordsRoutes = require('./findCoords');
+let documentsRoutes = require('./documents');
+let announcementsRoutes = require('./announcements');
 
 /**
  * @openapi
@@ -30,5 +34,9 @@ router.use('/auth', authenticationRoutes);
 router.use('/users', usersRoutes);
 router.use('/products', productsRoutes);
 router.use('/sales', salesRoutes);
+router.use('/admin', adminRoutes);
+router.use('/findCoords', findCoordsRoutes);
+router.use('/documents', documentsRoutes);
+router.use('/announcements', announcementsRoutes);
 
 module.exports = router;

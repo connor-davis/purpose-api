@@ -1,6 +1,6 @@
 module.exports = {
   /**
-   * @param {String} id The id of the user to match the sales and return them.
+   * @param {String} id The id of the user to match the userData and return them.
    * @returns {{statement}}
    */
   GET_SALES: (id) => {
@@ -22,11 +22,11 @@ module.exports = {
    * @param {Object} data
    * @param {String} ownerId The id of the user who has the product.
    *
-   * @param data.id The sales id
+   * @param data.id The userData id
    * @param data.date The data of the sale
-   * @param data.product The sales product
-   * @param data.numberSold The sales number sold
-   * @param data.profit The sales sale profit
+   * @param data.product The userData product
+   * @param data.numberSold The userData number sold
+   * @param data.profit The userData sale profit
    *
    * @returns {{statement, data}}
    */
