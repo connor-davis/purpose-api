@@ -3,8 +3,10 @@ let router = Router();
 let passport = require('passport');
 let fs = require('fs');
 let path = require('path');
-let addDocumentsRoutes = require('./addDocuments');
-let removeDocumentsRoutes = require('./removeDocuments');
+let addDocumentsRoutes = require('./addDocuments.routes');
+let removeDocumentsRoutes = require('./removeDocuments.routes');
+const { readTransaction } = require('../../utils/neo4j');
+const { GET_USER } = require('../../queries/userQuerys');
 
 /**
  * @openapi
@@ -32,20 +34,29 @@ router.get(
 
     let foldersData = [];
 
-    folders.map((folder) => {
+    folders.map(async (folder) => {
       let files = fs.readdirSync(
         path.join(process.cwd(), 'documents', folder.name)
       );
 
       files = [...files];
 
-      foldersData.push({
-        name: folder.name,
-        fileCount: files.length,
+      await readTransaction(GET_USER({ id: folder.name }), (error, result) => {
+        if (error) return console.log(error);
+
+        let record = result.records[0];
+
+        foldersData.push({
+          name: folder.name,
+          fileCount: files.length,
+          owner: record.get('user'),
+        });
+
+        if (foldersData.length === folders.length) {
+          return response.status(200).json({ folders: foldersData });
+        }
       });
     });
-
-    return response.status(200).json({ folders: foldersData });
   }
 );
 

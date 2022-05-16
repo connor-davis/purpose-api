@@ -1,5 +1,13 @@
 module.exports = {
   /**
+   * @returns {{statement}}
+   */
+  GET_ALL_SALES: () => {
+    return {
+      statement: `MATCH (sale:Sale) WITH sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product`,
+    };
+  },
+  /**
    * @param {String} id The id of the user to match the userData and return them.
    * @returns {{statement}}
    */

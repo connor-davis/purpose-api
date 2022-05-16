@@ -22,7 +22,7 @@ const { GET_USERS, GET_USER } = require('../../queries/userQuerys');
  *         description: Returns "Unauthorized".
  */
 router.get(
-  '/users',
+  '/users/',
   passport.authenticate('jwt', { session: false }),
   async (request, response) => {
     let { user } = request;
@@ -80,6 +80,7 @@ router.get(
           .json({ message: 'Error while retrieving user data.', error });
       else {
         let record = result.records[0];
+
         let data = record.get('user');
 
         return response.status(200).json({ data });
@@ -88,7 +89,7 @@ router.get(
   }
 );
 
-router.use('/users/sales', require('./userData/sales'));
-router.use('/users/products', require('./userData/products'));
+router.use('/users/sales', require('./userData/sales.routes'));
+router.use('/users/products', require('./userData/products.routes'));
 
 module.exports = router;

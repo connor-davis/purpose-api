@@ -13,6 +13,9 @@ let router = Router();
  *     produces:
  *       - application/json
  *     parameters:
+ *       - name: image
+ *         description: The products image.
+ *         type: string
  *       - name: name
  *         description: The products name.
  *         type: string
