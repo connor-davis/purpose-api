@@ -19,7 +19,6 @@
   "dependencies": {
     "@formatjs/intl-numberformat": "^7.4.3",
     "axios": "^0.27.2",
-    "bcrypt-nodejs": "^0.0.3",
     "body-parser": "^1.19.1",
     "canvas": "^2.9.1",
     "chalk": "4.1.2",
