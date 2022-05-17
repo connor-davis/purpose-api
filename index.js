@@ -22,7 +22,12 @@ let morgan = require('morgan');
 let chalk = require('chalk');
 let { readTransaction, writeTransaction } = require('./utils/neo4j');
 let { GET_USER, CREATE_USER } = require('./queries/userQuerys');
-let io = require('socket.io')(http);
+let io = require('socket.io')(http, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
+});
 let apiRoutes = require('./api');
 let { v4 } = require('uuid');
 let bcrypt = require('bcrypt');
