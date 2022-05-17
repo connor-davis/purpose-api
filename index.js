@@ -30,7 +30,7 @@ let io = require('socket.io')(http, {
 });
 let apiRoutes = require('./api');
 let { v4 } = require('uuid');
-let bcrypt = require('bcrypt');
+let bcrypt = require('bcrypt-nodejs');
 const { ADD_ANNOUNCEMENT } = require('./queries/announcementQueries');
 
 let secure_port = process.env.HTTP_SECURE_PORT || 443;

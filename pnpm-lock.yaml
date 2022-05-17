@@ -5,7 +5,7 @@ specifiers:
   '@tailwindcss/typography': ^0.5.1
   autoprefixer: ^10.4.2
   axios: ^0.27.2
-  bcrypt: ^5.0.1
+  bcrypt-nodejs: ^0.0.3
   body-parser: ^1.19.1
   canvas: ^2.9.1
   chalk: 4.1.2
@@ -41,7 +41,7 @@ specifiers:
 dependencies:
   '@formatjs/intl-numberformat': 7.4.3
   axios: 0.27.2
-  bcrypt: 5.0.1
+  bcrypt-nodejs: 0.0.3
   body-parser: 1.20.0
   canvas: 2.9.1
   chalk: 4.1.2
@@ -469,16 +469,9 @@ packages:
       safe-buffer: 5.1.2
     dev: false
 
-  /bcrypt/5.0.1:
-    resolution: {integrity: sha512-9BTgmrhZM2t1bNuDtrtIMVSmmxZBrJ71n8Wg+YgdjHuIWYF7SjjmCPZFB+/5i/o/PIeRpwVJR3P+NrpIItUjqw==}
-    engines: {node: '>= 10.0.0'}
-    requiresBuild: true
-    dependencies:
-      '@mapbox/node-pre-gyp': 1.0.9
-      node-addon-api: 3.2.1
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
+  /bcrypt-nodejs/0.0.3:
+    resolution: {integrity: sha512-NmTbLm867btBHCBZ222FQXkQKzecB0KG6pTXFa6NeTVZaSnLfCsx7EK2PL3J+kX8xJThUquEBbhimRCKKZX9zA==}
+    deprecated: bcrypt-nodejs is no longer actively maintained. Please use bcrypt or bcryptjs. See https://github.com/kelektiv/node.bcrypt.js/wiki/bcrypt-vs-brypt.js to learn more about these two options
     dev: false
 
   /big-integer/1.6.51:
@@ -2196,10 +2189,6 @@ packages:
   /nextgen-events/1.5.2:
     resolution: {integrity: sha512-0ZEIRQywH5Oxt2IYYufRltQg/KjXhKM7f7MHve+ZIRaKnIR1PPYEXAl2WBmej5Sf0Qh2GgE/21sMRZVuOyxLzw==}
     engines: {node: '>=6.0.0'}
-    dev: false
-
-  /node-addon-api/3.2.1:
-    resolution: {integrity: sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==}
     dev: false
 
   /node-bitmap/0.0.1:

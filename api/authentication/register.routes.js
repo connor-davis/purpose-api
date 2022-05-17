@@ -1,7 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let uuid = require('uuid');
-let bcrypt = require('bcrypt');
+let bcrypt = require('bcrypt-nodejs');
 let jwt = require('jsonwebtoken');
 let fs = require('fs');
 let { writeTransaction } = require('../../utils/neo4j');
