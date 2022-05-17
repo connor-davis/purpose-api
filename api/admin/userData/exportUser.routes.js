@@ -8,6 +8,7 @@ let path = require('path');
 let ExcelJS = require('exceljs');
 let moment = require('moment');
 let { v4 } = require('uuid');
+let { createCanvas } = require('canvas');
 let { Chart } = require('chart.js');
 let Intl = require('@formatjs/intl-numberformat');
 
@@ -249,7 +250,7 @@ let generateExcel = async (user, sales, products, callback = (path) => {}) => {
     { header: '2022', key: 'graph2022', width: 1080 / 2 },
   ];
 
-  let canvas = document.createElement('canvas');
+  let canvas = createCanvas(1920, 1080);
   let context = canvas.getContext('2d');
 
   let months = [
