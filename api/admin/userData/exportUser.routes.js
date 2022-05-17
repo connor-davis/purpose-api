@@ -250,7 +250,7 @@ let generateExcel = async (user, sales, products, callback = (path) => {}) => {
     { header: '2022', key: 'graph2022', width: 1080 / 2 },
   ];
 
-  let canvas = createCanvas(1080 / 2, 1080 / 4);
+  let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
 
   let months = [
