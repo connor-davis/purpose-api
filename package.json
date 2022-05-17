@@ -19,6 +19,7 @@
   "dependencies": {
     "@formatjs/intl-numberformat": "^7.4.3",
     "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.1",
     "canvas": "^2.9.1",
     "chalk": "4.1.2",
@@ -38,6 +39,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.4",
     "neo4j-driver": "^4.4.4",
+    "node-gyp": "^9.0.0",
     "nodemon": "^2.0.15",
     "passport": "^0.5.2",
     "passport-jwt": "^4.0.0",
