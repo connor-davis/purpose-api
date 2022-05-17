@@ -115,7 +115,7 @@ let port = process.env.HTTP_PORT || 80;
   });
 
   app.use(morganMiddleware);
-  app.use(cors('*'));
+  app.use(cors());
   app.use(compression());
   app.use(json({ limit: '50mb' }));
   app.use(urlencoded({ limit: '50mb', extended: false }));
