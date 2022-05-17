@@ -32,6 +32,8 @@ router.get(
       withFileTypes: true,
     });
 
+    if (folders.length === 0) return response.status(200).json({ folders: [] });
+
     let foldersData = [];
 
     folders.map(async (folder) => {

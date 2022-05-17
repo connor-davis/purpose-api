@@ -28,6 +28,16 @@ module.exports = {
     };
   },
   /**
+   * @param {String} id The users id
+   * @param {Boolean} hidePassword Whether to hide the password from the record or not.
+   * @returns {{statement, data}}
+   */
+  GET_USER_DATA: (id, hidePassword = true) => {
+    return {
+      statement: `MATCH (user:User { id: "${id}" })-[:USER_SALE]->(sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH user, sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product, apoc.map.removeKey(user  {.*}, 'password') as user`,
+    };
+  },
+  /**
    * @param {Object} data
    *
    * @param data.email The users email

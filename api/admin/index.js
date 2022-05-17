@@ -2,8 +2,8 @@ let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
 
-const { readTransaction } = require('../../utils/neo4j');
-const { GET_USERS, GET_USER } = require('../../queries/userQuerys');
+let { readTransaction } = require('../../utils/neo4j');
+let { GET_USERS, GET_USER } = require('../../queries/userQuerys');
 
 /**
  * @openapi
@@ -91,5 +91,7 @@ router.get(
 
 router.use('/users/sales', require('./userData/sales.routes'));
 router.use('/users/products', require('./userData/products.routes'));
+router.use('/passwordReset', require('./passwordReset.routes'));
+router.use('/exportUser', require('./userData/exportUser.routes'));
 
 module.exports = router;
