@@ -34,7 +34,7 @@ let bcrypt = require('bcrypt');
 const { ADD_ANNOUNCEMENT } = require('./queries/announcementQueries');
 
 let secure_port = process.env.HTTP_SECURE_PORT || 443;
-let port = process.env.HTTP_PORT || 3000;
+let port = process.env.HTTP_PORT || 80;
 
 (async () => {
   logger.success(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
