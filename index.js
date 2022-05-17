@@ -76,22 +76,6 @@ let port = process.env.HTTP_PORT || 80;
     );
   }
 
-  io.on('connection', (socket) => {
-    logger.success('a user connected to socket io');
-
-    socket.on('announcement', (data) => {
-      let announcement = {
-        announcementTitle: data.data.announcementTitle,
-        announcementBody: data.data.announcementBody,
-        id: v4(),
-      };
-
-      writeTransaction(ADD_ANNOUNCEMENT(announcement), (error, result) => {});
-
-      socket.broadcast.emit('announcement', announcement);
-    });
-  });
-
   let options = {
     definition: {
       openapi: '3.0.0',
@@ -165,6 +149,22 @@ let port = process.env.HTTP_PORT || 80;
 
   app.get('/**', async (request, response) => {
     response.render('pages/404.ejs');
+  });
+
+  io.on('connection', (socket) => {
+    logger.success('a user connected to socket io');
+
+    socket.on('announcement', (data) => {
+      let announcement = {
+        announcementTitle: data.data.announcementTitle,
+        announcementBody: data.data.announcementBody,
+        id: v4(),
+      };
+
+      writeTransaction(ADD_ANNOUNCEMENT(announcement), (error, result) => {});
+
+      socket.broadcast.emit('announcement', announcement);
+    });
   });
 
   http.listen(port, () =>
