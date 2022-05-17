@@ -12,6 +12,10 @@
     "start:dev": "nodemon index.js",
     "build:css": "postcss styles/tailwind.css -o public/css/style.css"
   },
+  "engines": {
+    "node": ">=8.12.0",
+    "npm": ">=6.0.0"
+  },
   "dependencies": {
     "@formatjs/intl-numberformat": "^7.4.3",
     "axios": "^0.27.2",
