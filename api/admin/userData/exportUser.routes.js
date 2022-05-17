@@ -2,13 +2,12 @@ let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
 let { readTransaction } = require('../../../utils/neo4j');
-let { GET_USER, GET_USER_DATA } = require('../../../queries/userQuerys');
+let { GET_USER_DATA } = require('../../../queries/userQuerys');
 let fs = require('fs');
 let path = require('path');
 let ExcelJS = require('exceljs');
 let moment = require('moment');
 let { v4 } = require('uuid');
-let { createCanvas } = require('canvas');
 let { Chart } = require('chart.js');
 let Intl = require('@formatjs/intl-numberformat');
 
