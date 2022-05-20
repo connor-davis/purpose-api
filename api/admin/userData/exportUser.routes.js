@@ -345,7 +345,7 @@ let generateExcel = async (user, sales, products, callback = (path) => {}) => {
       },
       scales: {
         x: {
-          display: false,
+          display: true,
           title: {
             display: true,
           },
