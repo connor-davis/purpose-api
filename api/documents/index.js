@@ -50,7 +50,8 @@ router.get(
       count++;
 
       if (count === folders.length) {
-        console.log(foldersList);
+        if (foldersList.length === 0)
+          return response.status(200).json({ folders: foldersData });
 
         foldersList.map(async (folder) => {
           console.log(folder);
