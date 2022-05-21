@@ -63,7 +63,7 @@ router.get(
           });
         }
 
-        if (foldersData.length === folders.length) {
+        if (foldersData.length === foldersList.length) {
           return response.status(200).json({ folders: foldersData });
         }
       });
