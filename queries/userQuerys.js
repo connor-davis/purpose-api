@@ -89,7 +89,7 @@ module.exports = {
     if (!email) throw 'Email is undefined for DELETE_USER';
 
     return {
-      statement: `MATCH (user:User) WHERE user.email = "${email}" DETACH DELETE user`,
+      statement: `MATCH (user:User) WHERE user.email = "connor@3reco.co.za" WITH user MATCH (user)-[:SELLS]->(product:Product) WITH user, product MATCH (user)-[:USER_SALE]->(sale:Sale) WITH user, sale, product DETACH DELETE user DETACH DELETE sale DETACH DELETE product;`,
     };
   },
 };
