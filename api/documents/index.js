@@ -43,6 +43,10 @@ router.get(
 
       files = [...files];
 
+      if (files.length === 0) {
+        fs.unlinkSync(path.join(process.cwd(), 'documents', folder.name));
+      }
+
       await readTransaction(GET_USER({ id: folder.name }), (error, result) => {
         if (error) return console.log(error);
 
@@ -54,8 +58,6 @@ router.get(
             fileCount: files.length,
             owner: record.get('user'),
           });
-        } else {
-          fs.unlinkSync(path.join(process.cwd(), 'documents', folder.name));
         }
 
         if (foldersData.length === folders.length) {
