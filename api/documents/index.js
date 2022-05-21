@@ -36,6 +36,7 @@ router.get(
 
     let foldersData = [];
     let foldersList = [];
+    let count = 0;
 
     folders.map(async (folder) => {
       let files = fs.readdirSync(
@@ -45,30 +46,37 @@ router.get(
       files = [...files];
 
       if (files.length > 0) foldersList.push({ name: folder.name, files });
-    });
 
-    console.log(foldersList);
+      count++;
 
-    foldersList.map(async (folder) => {
-      console.log(folder);
+      if (count === folders.length) {
+        console.log(foldersList);
 
-      await readTransaction(GET_USER({ id: folder.name }), (error, result) => {
-        if (error) return console.log(error);
+        foldersList.map(async (folder) => {
+          console.log(folder);
 
-        let record = result.records[0];
+          await readTransaction(
+            GET_USER({ id: folder.name }),
+            (error, result) => {
+              if (error) return console.log(error);
 
-        if (record) {
-          foldersData.push({
-            name: folder.name,
-            fileCount: folder.files.length,
-            owner: record.get('user'),
-          });
-        }
+              let record = result.records[0];
 
-        if (foldersData.length === foldersList.length) {
-          return response.status(200).json({ folders: foldersData });
-        }
-      });
+              if (record) {
+                foldersData.push({
+                  name: folder.name,
+                  fileCount: folder.files.length,
+                  owner: record.get('user'),
+                });
+              }
+
+              if (foldersData.length === foldersList.length) {
+                return response.status(200).json({ folders: foldersData });
+              }
+            }
+          );
+        });
+      }
     });
   }
 );
