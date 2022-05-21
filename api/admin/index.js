@@ -36,13 +36,15 @@ router.get(
           .json({ message: 'Error while retrieving users.', error });
       else {
         let records = result.records;
-        let data = records
-          .map((record) => {
-            return record.get('user');
-          })
-          .filter((user) => user.type !== 'admin');
+        if (records.length > 1) {
+          let data = records
+            .map((record) => {
+              return record.get('user');
+            })
+            .filter((user) => user.type !== 'admin');
 
-        return response.status(200).json({ data });
+          return response.status(200).json({ data });
+        } else return response.status(200).json({ data: [] });
       }
     });
   }
