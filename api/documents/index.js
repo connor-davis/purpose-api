@@ -48,11 +48,13 @@ router.get(
 
         let record = result.records[0];
 
-        foldersData.push({
-          name: folder.name,
-          fileCount: files.length,
-          owner: record.get('user'),
-        });
+        if (record) {
+          foldersData.push({
+            name: folder.name,
+            fileCount: files.length,
+            owner: record.get('user'),
+          });
+        }
 
         if (foldersData.length === folders.length) {
           return response.status(200).json({ folders: foldersData });

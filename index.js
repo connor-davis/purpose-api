@@ -151,6 +151,27 @@ let port = process.env.HTTP_PORT || 80;
     response.render('pages/404.ejs');
   });
 
+  logger.info(
+    'Checking the "documents" directory every hour to delete empty folders.'
+  );
+
+  setInterval(() => {
+    let documentsDirectory = path.join(process.cwd(), 'documents');
+
+    fs.readdirSync(documentsDirectory).forEach((p) => {
+      let directory = path.join(documentsDirectory, p);
+      let isEmpty = fs.readdirSync(directory).length === 0;
+
+      if (isEmpty) {
+        logger.info(`${p} is an empty folder, deleting now.`);
+
+        fs.unlinkSync(path.join(documentsDirectory, p));
+
+        logger.info(`${p} folder has been deleted.`);
+      }
+    });
+  }, 60 * 60 * 1000);
+
   io.on('connection', (socket) => {
     logger.success('a user connected to socket io');
 

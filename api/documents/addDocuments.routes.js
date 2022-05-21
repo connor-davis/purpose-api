@@ -36,12 +36,12 @@ router.post('/', upload.single('file'), async (request, response) => {
       await fs.readFileSync(file.path)
     );
 
-    return response
-      .status(200)
-      .json({
-        success: 'File uploaded successfully.',
-        name: file.originalname,
-      });
+    await fs.unlinkSync(file.path);
+
+    return response.status(200).json({
+      success: 'File uploaded successfully.',
+      name: file.originalname,
+    });
   } catch (error) {
     console.log(error);
 

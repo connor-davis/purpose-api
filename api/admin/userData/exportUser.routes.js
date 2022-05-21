@@ -396,6 +396,8 @@ let generateExcel = async (user, sales, products, callback = (path) => {}) => {
     .writeFile(path.join(process.cwd(), 'temp', user.email + '-data.xlsx'))
     .then(() => {
       callback(path.join(process.cwd(), 'temp', user.email + '-data.xlsx'));
+
+      fs.unlinkSync(imagePath);
     });
 };
 
