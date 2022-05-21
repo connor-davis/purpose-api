@@ -36,35 +36,38 @@ router.get(
 
     let foldersData = [];
 
-    folders.map(async (folder) => {
-      let files = fs.readdirSync(
-        path.join(process.cwd(), 'documents', folder.name)
-      );
+    folders
+      .map(async (folder) => {
+        let files = fs.readdirSync(
+          path.join(process.cwd(), 'documents', folder.name)
+        );
 
-      files = [...files];
+        files = [...files];
 
-      if (files.length === 0) {
-        fs.unlinkSync(path.join(process.cwd(), 'documents', folder.name));
-      }
+        if (files.length > 0) return { ...folder, files };
+      })
+      .map(async (folder) => {
+        await readTransaction(
+          GET_USER({ id: folder.name }),
+          (error, result) => {
+            if (error) return console.log(error);
 
-      await readTransaction(GET_USER({ id: folder.name }), (error, result) => {
-        if (error) return console.log(error);
+            let record = result.records[0];
 
-        let record = result.records[0];
+            if (record) {
+              foldersData.push({
+                name: folder.name,
+                fileCount: folder.files.length,
+                owner: record.get('user'),
+              });
+            }
 
-        if (record) {
-          foldersData.push({
-            name: folder.name,
-            fileCount: files.length,
-            owner: record.get('user'),
-          });
-        }
-
-        if (foldersData.length === folders.length) {
-          return response.status(200).json({ folders: foldersData });
-        }
+            if (foldersData.length === folders.length) {
+              return response.status(200).json({ folders: foldersData });
+            }
+          }
+        );
       });
-    });
   }
 );
 
