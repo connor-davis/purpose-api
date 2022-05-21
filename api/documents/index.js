@@ -50,41 +50,9 @@ router.get(
       else emptyFoldersList.push(folder.name);
 
       count++;
-
-      if (count === folders.length) {
-        if (emptyFoldersList.length > 0) {
-          emptyFoldersList.map((name) =>
-            fs.unlinkSync(path.join(process.cwd(), 'documents', name))
-          );
-        }
-
-        if (foldersList.length === 0)
-          return response.status(200).json({ folders: foldersData });
-
-        foldersList.map(async (folder) => {
-          await readTransaction(
-            GET_USER({ id: folder.name }),
-            (error, result) => {
-              if (error) return console.log(error);
-
-              let record = result.records[0];
-
-              if (record) {
-                foldersData.push({
-                  name: folder.name,
-                  fileCount: folder.files.length,
-                  owner: record.get('user'),
-                });
-              }
-
-              if (foldersData.length === foldersList.length) {
-                return response.status(200).json({ folders: foldersData });
-              }
-            }
-          );
-        });
-      }
     });
+
+    console.log(count);
   }
 );
 
