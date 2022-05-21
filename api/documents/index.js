@@ -44,9 +44,11 @@ router.get(
 
         files = [...files];
 
-        if (files.length > 0) return { ...folder, files };
+        if (files.length > 0) return { name: folder.name, files };
       })
       .map(async (folder) => {
+        console.log(folder);
+
         await readTransaction(
           GET_USER({ id: folder.name }),
           (error, result) => {
