@@ -4,7 +4,8 @@ let passport = require('passport');
 let { GET_USER } = require('../../queries/userQuerys');
 let { readTransaction } = require('../../utils/neo4j');
 
-let updateUserRoutes = require("./updateUser.routes");
+let updateUserRoutes = require('./updateUser.routes');
+let deleteUserRoutes = require('./deleteUser.routes');
 
 /**
  * @openapi
@@ -36,7 +37,7 @@ router.get(
         else {
           let record = result.records[0];
 
-          let data = record.get("user");
+          let data = record.get('user');
 
           return response.status(200).json({ data });
         }
@@ -45,6 +46,15 @@ router.get(
   }
 );
 
-router.use("/", passport.authenticate("jwt", { session: false }), updateUserRoutes);
+router.use(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  updateUserRoutes
+);
+router.use(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  deleteUserRoutes
+);
 
 module.exports = router;
