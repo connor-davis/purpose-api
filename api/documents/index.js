@@ -35,41 +35,39 @@ router.get(
     if (folders.length === 0) return response.status(200).json({ folders: [] });
 
     let foldersData = [];
+    let foldersList = [];
 
-    folders
-      .map(async (folder) => {
-        let files = fs.readdirSync(
-          path.join(process.cwd(), 'documents', folder.name)
-        );
+    folders.map(async (folder) => {
+      let files = fs.readdirSync(
+        path.join(process.cwd(), 'documents', folder.name)
+      );
 
-        files = [...files];
+      files = [...files];
 
-        if (files.length > 0) return { name: folder.name, files };
-      })
-      .map(async (folder) => {
-        console.log(folder);
+      if (files.length > 0) foldersList.push({ name: folder.name, files });
+    });
 
-        await readTransaction(
-          GET_USER({ id: folder.name }),
-          (error, result) => {
-            if (error) return console.log(error);
+    foldersList.map(async (folder) => {
+      console.log(folder);
 
-            let record = result.records[0];
+      await readTransaction(GET_USER({ id: folder.name }), (error, result) => {
+        if (error) return console.log(error);
 
-            if (record) {
-              foldersData.push({
-                name: folder.name,
-                fileCount: folder.files.length,
-                owner: record.get('user'),
-              });
-            }
+        let record = result.records[0];
 
-            if (foldersData.length === folders.length) {
-              return response.status(200).json({ folders: foldersData });
-            }
-          }
-        );
+        if (record) {
+          foldersData.push({
+            name: folder.name,
+            fileCount: folder.files.length,
+            owner: record.get('user'),
+          });
+        }
+
+        if (foldersData.length === folders.length) {
+          return response.status(200).json({ folders: foldersData });
+        }
       });
+    });
   }
 );
 
