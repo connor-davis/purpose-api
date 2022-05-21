@@ -47,6 +47,8 @@ router.get(
       if (files.length > 0) foldersList.push({ name: folder.name, files });
     });
 
+    console.log(foldersList);
+
     foldersList.map(async (folder) => {
       console.log(folder);
 
