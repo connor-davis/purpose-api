@@ -36,7 +36,6 @@ router.get(
 
     let foldersData = [];
     let foldersList = [];
-    let emptyFoldersList = [];
     let count = 0;
 
     folders.map(async (folder) => {
@@ -47,18 +46,11 @@ router.get(
       files = [...files];
 
       if (files.length > 0) foldersList.push({ name: folder.name, files });
-      else emptyFoldersList.push(folder.name);
 
       count++;
     });
 
     if (count === folders.length) {
-      if (emptyFoldersList.length > 0) {
-        emptyFoldersList.map((name) =>
-          fs.unlinkSync(path.join(process.cwd(), 'documents', name))
-        );
-      }
-
       if (foldersList.length === 0)
         return response.status(200).json({ folders: foldersData });
 
