@@ -44,7 +44,7 @@ module.exports = {
                 MATCH (user:User {id: "${ownerId}"})
                 MATCH (product:Product {id: "${data.product.id}"})
                 WITH user, product
-                CREATE (sale:Sale { id: $id, date: $date, numberSold: $numberSold, profit: $profit })
+                CREATE (sale:Sale { id: $id, date: $date, numberSold: $numberSold, profit: $profit, industry: $industry })
                 CREATE (sale)-[:SALE_PRODUCT]->(product)
                 CREATE (user)-[:USER_SALE]->(sale)
                 RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product
