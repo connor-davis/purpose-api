@@ -54,6 +54,8 @@ router.get(
             fileCount: files.length,
             owner: record.get('user'),
           });
+        } else {
+          fs.unlinkSync(path.join(process.cwd(), 'documents', folder.name));
         }
 
         if (foldersData.length === folders.length) {
