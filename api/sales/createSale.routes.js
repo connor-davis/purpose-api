@@ -32,14 +32,15 @@ router.post('/', async (request, response) => {
   let { body, user } = request;
 
   let id = v4();
-  let date = Date.now();
+  let date;
+
+  if (!body.date) body.date = Date.now();
 
   try {
     await writeTransaction(
       CREATE_SALE(
         {
           id,
-          date,
           ...body,
         },
         user.id

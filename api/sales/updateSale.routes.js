@@ -28,6 +28,9 @@ let router = Router();
  */
 router.put('/', async (request, response) => {
   let { body } = request;
+
+  if (!body.date) body.date = Date.now();
+
   await writeTransaction(DELETE_SALE(body.id), async (error, result) => {
     if (error)
       return response
