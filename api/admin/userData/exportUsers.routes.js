@@ -39,7 +39,7 @@ router.get(
 
     await readTransaction(
       {
-        statement: `MATCH (user:User) WHERE NOT (user.email = "admin@purposeapp") WITH user MATCH (user)-[:USER_SALE]->(sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) RETURN apoc.map.removeKey(product {.*}, 'image') as product, apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(user {.*}, 'password') as user`,
+        statement: `MATCH (user:User) WHERE NOT (user.email = "admin@purposeapp") WITH user MATCH (user)-[:USER_SALE]->(sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) RETURN apoc.map.removeKey(product {.*}, '') as product, apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(user {.*}, 'password') as user`,
       },
       async (error, result) => {
         if (error)
@@ -80,25 +80,21 @@ router.get(
             return user;
           });
 
-          console.log(usersData);
-          console.log(salesData);
-          console.log(productsData);
+          await generateExcel(usersData, salesData, productsData, (path) => {
+            response.set(
+              'Content-disposition',
+              'attachment; filename=purpose-users-data.xlsx'
+            );
+            response.set(
+              'Content-type',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
+            );
+            response.status(200).download(path);
 
-          // await generateExcel(usersData, salesData, productsData, (path) => {
-          //   response.set(
-          //     'Content-disposition',
-          //     'attachment; filename=purpose-users-data.xlsx'
-          //   );
-          //   response.set(
-          //     'Content-type',
-          //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
-          //   );
-          //   response.status(200).download(path);
-          //
-          //   setTimeout(() => {
-          //     fs.unlinkSync(path);
-          //   }, 30000);
-          // });
+            setTimeout(() => {
+              fs.unlinkSync(path);
+            }, 30000);
+          });
         }
       }
     );
