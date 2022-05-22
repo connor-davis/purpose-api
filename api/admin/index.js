@@ -95,5 +95,6 @@ router.use('/users/sales', require('./userData/sales.routes'));
 router.use('/users/products', require('./userData/products.routes'));
 router.use('/passwordReset', require('./passwordReset.routes'));
 router.use('/exportUser', require('./userData/exportUser.routes'));
+router.use('/exportUsers', require('./userData/exportUsers.routes'));
 
 module.exports = router;
