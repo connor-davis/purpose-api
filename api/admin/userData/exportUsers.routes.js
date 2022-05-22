@@ -80,21 +80,25 @@ router.get(
             return user;
           });
 
-          await generateExcel(usersData, salesData, productsData, (path) => {
-            response.set(
-              'Content-disposition',
-              'attachment; filename=purpose-users-data.xlsx'
-            );
-            response.set(
-              'Content-type',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
-            );
-            response.status(200).download(path);
+          console.log(usersData);
+          console.log(salesData);
+          console.log(productsData);
 
-            setTimeout(() => {
-              fs.unlinkSync(path);
-            }, 30000);
-          });
+          // await generateExcel(usersData, salesData, productsData, (path) => {
+          //   response.set(
+          //     'Content-disposition',
+          //     'attachment; filename=purpose-users-data.xlsx'
+          //   );
+          //   response.set(
+          //     'Content-type',
+          //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
+          //   );
+          //   response.status(200).download(path);
+          //
+          //   setTimeout(() => {
+          //     fs.unlinkSync(path);
+          //   }, 30000);
+          // });
         }
       }
     );
