@@ -39,7 +39,7 @@ router.get(
 
     await readTransaction(
       {
-        statement: `MATCH (user:User) WITH user MATCH (sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH user, sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product, apoc.map.removeKey(user  {.*}, 'password') as user`,
+        statement: `MATCH (user:User) WITH user MATCH (sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH user, sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, 'image') as product, apoc.map.removeKey(user  {.*}, 'password') as user`,
       },
       async (error, result) => {
         if (error)
@@ -49,35 +49,51 @@ router.get(
         else {
           let records = result.records;
 
-          let users = [];
-          let sales = [];
-          let products = [];
+          let data = {};
 
           records.map((record) => {
             let user = record.get('user');
             let sale = record.get('sale');
             let product = record.get('product');
 
-            users.push(user);
-            sales.push({ ...sale, product });
-            products.push(product);
+            data[user.id] = { ...user };
+            data[user.id].sales[sale.id] = { ...sale, product };
+            data[user.id].products[product.id] = { ...product };
+
+            return record;
           });
 
-          await generateExcel(users, sales, products, (path) => {
-            response.set(
-              'Content-disposition',
-              'attachment; filename=purpose-users-data.xlsx'
-            );
-            response.set(
-              'Content-type',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
-            );
-            response.status(200).download(path);
+          console.log(data);
 
-            setTimeout(() => {
-              fs.unlinkSync(path);
-            }, 30000);
-          });
+          // let users = [];
+          // let sales = [];
+          // let products = [];
+          //
+          // records.map((record) => {
+          //   let user = record.get('user');
+          //   let sale = record.get('sale');
+          //   let product = record.get('product');
+          //
+          //   users.push(user);
+          //   sales.push({ ...sale, product });
+          //   products.push(product);
+          // });
+          //
+          // await generateExcel(users, sales, products, (path) => {
+          //   response.set(
+          //     'Content-disposition',
+          //     'attachment; filename=purpose-users-data.xlsx'
+          //   );
+          //   response.set(
+          //     'Content-type',
+          //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
+          //   );
+          //   response.status(200).download(path);
+          //
+          //   setTimeout(() => {
+          //     fs.unlinkSync(path);
+          //   }, 30000);
+          // });
         }
       }
     );
