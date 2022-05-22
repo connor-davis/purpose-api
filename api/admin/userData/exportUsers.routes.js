@@ -241,6 +241,8 @@ let generateExcel = async (users, sales, products, callback = (path) => {}) => {
     },
     { header: 'Profit', key: 'profit' },
     { header: 'Product Name', key: 'productName' },
+    { header: 'Product Cost', key: 'productCost' },
+    { header: 'Product Price', key: 'productPrice' },
   ];
 
   sales.forEach((d) => {
@@ -249,6 +251,8 @@ let generateExcel = async (users, sales, products, callback = (path) => {}) => {
       numberSold: d.numberSold || '',
       profit: 'R ' + d.profit || '',
       productName: d.product.name || '',
+      productCost: 'R ' + d.product.cost || '',
+      productPrice: 'R ' + d.product.price || '',
     });
   });
 
