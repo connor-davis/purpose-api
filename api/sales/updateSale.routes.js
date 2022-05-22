@@ -31,6 +31,8 @@ router.put('/', async (request, response) => {
 
   if (!body.date) body.date = Date.now();
 
+  body.industry = request.user.type;
+
   await writeTransaction(DELETE_SALE(body.id), async (error, result) => {
     if (error)
       return response
