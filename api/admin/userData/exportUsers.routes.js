@@ -39,7 +39,7 @@ router.get(
 
     await readTransaction(
       {
-        statement: `MATCH (user:User) WITH user MATCH (sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH user, sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, 'image') as product, apoc.map.removeKey(user  {.*}, 'password') as user`,
+        statement: `MATCH (user:User) WHERE NOT (user.email = "admin@purposeapp") WITH user MATCH (user)-[:USER_SALE]->(sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) RETURN apoc.map.removeKey(product {.*}, 'image') as product, apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(user {.*}, 'password') as user`,
       },
       async (error, result) => {
         if (error)
