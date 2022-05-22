@@ -63,37 +63,38 @@ router.get(
             return record;
           });
 
-          console.log(data);
+          let usersData = Object.values(data);
+          let salesData = [];
+          let productsData = [];
 
-          // let users = [];
-          // let sales = [];
-          // let products = [];
-          //
-          // records.map((record) => {
-          //   let user = record.get('user');
-          //   let sale = record.get('sale');
-          //   let product = record.get('product');
-          //
-          //   users.push(user);
-          //   sales.push({ ...sale, product });
-          //   products.push(product);
-          // });
-          //
-          // await generateExcel(users, sales, products, (path) => {
-          //   response.set(
-          //     'Content-disposition',
-          //     'attachment; filename=purpose-users-data.xlsx'
-          //   );
-          //   response.set(
-          //     'Content-type',
-          //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
-          //   );
-          //   response.status(200).download(path);
-          //
-          //   setTimeout(() => {
-          //     fs.unlinkSync(path);
-          //   }, 30000);
-          // });
+          usersData = usersData.map((user) => {
+            let sales = Object.values(user.sales);
+            let products = Object.values(user.products);
+
+            sales.forEach((sale) => salesData.push(sale));
+            products.forEach((product) => productsData.push(product));
+
+            delete user.sales;
+            delete user.products;
+
+            return user;
+          });
+
+          await generateExcel(usersData, salesData, productsData, (path) => {
+            response.set(
+              'Content-disposition',
+              'attachment; filename=purpose-users-data.xlsx'
+            );
+            response.set(
+              'Content-type',
+              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
+            );
+            response.status(200).download(path);
+
+            setTimeout(() => {
+              fs.unlinkSync(path);
+            }, 30000);
+          });
         }
       }
     );
