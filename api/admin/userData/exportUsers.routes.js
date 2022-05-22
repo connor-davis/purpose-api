@@ -66,7 +66,7 @@ router.get(
           await generateExcel(users, sales, products, (path) => {
             response.set(
               'Content-disposition',
-              'attachment; filename=' + user.email + '-data.xlsx'
+              'attachment; filename=purpose-users-data.xlsx'
             );
             response.set(
               'Content-type',
