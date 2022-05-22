@@ -14,7 +14,7 @@ let Intl = require('@formatjs/intl-numberformat');
 
 /**
  * @openapi
- * /api/v1/admin/exportUser/:id:
+ * /api/v1/admin/exportUser:
  *   get:
  *     description: Get all data for user.
  *     tags: [Admin]
@@ -29,7 +29,7 @@ let Intl = require('@formatjs/intl-numberformat');
  *         description: Returns "Unauthorized".
  */
 router.get(
-  '/:id',
+  '/',
   passport.authenticate('jwt', { session: false }),
   async (request, response) => {
     let { user } = request;
