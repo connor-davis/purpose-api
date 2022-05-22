@@ -56,7 +56,7 @@ router.get(
             let sale = record.get('sale');
             let product = record.get('product');
 
-            data[user.id] = { ...user };
+            data[user.id] = { ...user, sales: {}, products: {} };
             data[user.id].sales[sale.id] = { ...sale, product };
             data[user.id].products[product.id] = { ...product };
 
