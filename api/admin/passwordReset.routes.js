@@ -125,9 +125,7 @@ router.get(
 
         return response.status(200).json({
           data: {
-            link:
-              'https://purpose.lone-wolf.software/reset/' +
-              passwordResetData.token,
+            link: 'https://purpose360.co.za/reset/' + passwordResetData.token,
           },
         });
       }
