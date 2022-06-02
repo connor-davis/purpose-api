@@ -102,6 +102,9 @@ router.get(
   async (request, response) => {
     let { id } = request.params;
 
+    if (!fs.existsSync(path.join(process.cwd(), 'documents', id)))
+      fs.mkdirSync(path.join(process.cwd(), 'documents', id));
+
     let files = fs.readdirSync(path.join(process.cwd(), 'documents', id), {
       withFileTypes: true,
     });
