@@ -39,7 +39,7 @@ router.get(
 
     await readTransaction(
       {
-        statement: `MATCH (user:User) WHERE NOT (user.email = "admin@purposeapp") WITH user MATCH (user)-[:USER_SALE]->(sale:Sale) WITH user, sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) RETURN apoc.map.removeKey(product {.*}, '') as product, apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(user {.*}, 'password') as user`,
+        statement: `MATCH (user:User) WHERE NOT (user.email = "admin@purposeapp") WITH apoc.map.removeKey(user {.*}, 'password') as user RETURN user`,
       },
       async (error, result) => {
         if (error)
@@ -49,51 +49,73 @@ router.get(
         else {
           let records = result.records;
 
-          let data = {};
+          let users = [];
 
-          records.map((record) => {
+          records.map(async (record, index, array) => {
             let user = record.get('user');
-            let sale = record.get('sale');
-            let product = record.get('product');
+            let products = [];
+            let sales = [];
 
-            data[user.id] = { ...user, sales: {}, products: {} };
-            data[user.id].sales[sale.id] = { ...sale, product };
-            data[user.id].products[product.id] = { ...product };
+            await readTransaction({
+              statement: `MATCH (user:User)-[:SELLS]->(product:Product) WHERE user.id = "${user.id}" RETURN apoc.map.removeKey(product {.*}, '') as product`
+            }, async (error, result) => {
+              if (error) return;
+              else {
+                result.records.map((record) => {
+                  products.push(record.get("product"));
+                });
+              }
+            });
 
-            return record;
-          });
+            await readTransaction({
+              statement: `MATCH (user:User)-[:USER_SALE]->(sale:Sale)-[:SALE_PRODUCT]->(product:Product) WHERE user.id = "${user.id}" RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product`
+            }, async (error, result) => {
+              if (error) return;
+              else {
+                result.records.map(async (record) => {
+                  let sale = record.get("sale");
+                  let product = record.get("product");
 
-          let usersData = Object.values(data);
-          let salesData = [];
-          let productsData = [];
+                  sales.push({ ...sale, product });
+                });
+              }
+            });
 
-          usersData = usersData.map((user) => {
-            let sales = Object.values(user.sales);
-            let products = Object.values(user.products);
+            users.push({ ...user, products, sales });
 
-            sales.forEach((sale) => salesData.push(sale));
-            products.forEach((product) => productsData.push(product));
+            if (index === records.length - 1) {
+              let salesData = [];
+              let productsData = [];
 
-            delete user.sales;
-            delete user.products;
+              let usersData = users.map((user) => {
+                let sales = user.sales;
+                let products = user.products;
 
-            return user;
-          });
+                sales.forEach((sale) => salesData.push(sale));
+                products.forEach((product) => productsData.push(product));
 
-          await generateExcel(usersData, salesData, productsData, (path) => {
-            response.set(
-              'Content-disposition',
-              'attachment; filename=purpose-users-data.xlsx'
-            );
-            response.set(
-              'Content-type',
-              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
-            );
-            response.status(200).download(path);
+                delete user.sales;
+                delete user.products;
 
-            setTimeout(() => {
-              fs.unlinkSync(path);
-            }, 30000);
+                return user;
+              });
+              
+              await generateExcel(usersData, salesData, productsData, (path) => {
+                response.set(
+                  'Content-disposition',
+                  'attachment; filename=purpose-users-data.xlsx'
+                );
+                response.set(
+                  'Content-type',
+                  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64'
+                );
+                response.status(200).download(path);
+
+                setTimeout(() => {
+                  fs.unlinkSync(path);
+                }, 30000);
+              });
+            }
           });
         }
       }
@@ -101,7 +123,7 @@ router.get(
   }
 );
 
-let generateExcel = async (users, sales, products, callback = (path) => {}) => {
+let generateExcel = async (users, sales, products, callback = (path) => { }) => {
   let workbook = new ExcelJS.Workbook();
 
   workbook.creator = 'Purpose360';
