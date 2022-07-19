@@ -9,10 +9,10 @@ let upload = multer({ dest: path.join(process.cwd(), 'temp') });
 
 /**
  * @openapi
- * /api/v1/documents:
+ * /api/v1/archive:
  *   post:
  *     description: Add an archive.
- *     tags: [Documents]
+ *     tags: [Archive]
  *     produces:
  *       - multipart/form-data
  *     parameters:

@@ -13,7 +13,7 @@ let crypto = require('crypto-js');
  * /api/v1/passwordReset/:
  *   post:
  *     description: Reset a users password in the database.
- *     tags: [User]
+ *     tags: [Users]
  *     produces:
  *       - application/text
  *     security:
