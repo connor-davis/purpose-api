@@ -83,7 +83,7 @@ router.get(
       else {
         let record = result.records[0];
 
-        let data = record.get('user');
+        let data = {...record.get('user')};
 
         return response.status(200).json({ data });
       }
@@ -93,8 +93,10 @@ router.get(
 
 router.use('/users/sales', require('./userData/sales.routes'));
 router.use('/users/products', require('./userData/products.routes'));
+router.use('/users/harvests', require('./userData/harvests.routes'));
 router.use('/passwordReset', require('./passwordReset.routes'));
 router.use('/exportUser', require('./userData/exportUser.routes'));
 router.use('/exportUsers', require('./userData/exportUsers.routes'));
+router.use('/ecd', require("./ecd"));
 
 module.exports = router;

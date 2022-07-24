@@ -12,7 +12,7 @@ let removeArchiveRoutes = require('./removeArchive.routes');
  * /api/v1/archive:
  *   get:
  *     description: Get all archive files.
- *     tags: [Documents]
+ *     tags: [Archive]
  *     produces:
  *       - application/text
  *     security:

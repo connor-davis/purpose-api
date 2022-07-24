@@ -10,6 +10,8 @@ let findCoordsRoutes = require('./findCoords.routes');
 let documentsRoutes = require('./documents');
 let announcementsRoutes = require('./announcements.routes');
 let archiveRoutes = require('./archive');
+let produceRoutes = require('./produce');
+let harvestedRoutes = require("./harvested");
 
 /**
  * @openapi
@@ -40,5 +42,7 @@ router.use('/findCoords', findCoordsRoutes);
 router.use('/documents', documentsRoutes);
 router.use('/announcements', announcementsRoutes);
 router.use('/archive', archiveRoutes);
+router.use('/produce', produceRoutes);
+router.use('/harvests', harvestedRoutes);
 
 module.exports = router;

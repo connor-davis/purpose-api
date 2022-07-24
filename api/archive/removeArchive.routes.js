@@ -14,7 +14,7 @@ let path = require('path');
  *       - application/json
  *     responses:
  *       200:
- *         description: Returns arhive or error message.
+ *         description: Returns archive or error message.
  *       401:
  *         description: Returns "Unauthorized".
  */

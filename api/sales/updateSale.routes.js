@@ -1,9 +1,6 @@
 let { Router } = require('express');
 let { writeTransaction } = require('../../utils/neo4j');
-let { CREATE_PRODUCT, UPDATE_PRODUCT } = require('../../queries/productQuerys');
-let { v4 } = require('uuid');
 const {
-  UPDATE_SALE,
   DELETE_SALE,
   CREATE_SALE,
 } = require('../../queries/salesQuerys');
@@ -42,6 +39,8 @@ router.put('/', async (request, response) => {
       await writeTransaction(
         CREATE_SALE(body, request.user.id),
         (error, result) => {
+          console.log(error, result);
+          
           if (error)
             return response
               .status(200)
