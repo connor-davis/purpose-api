@@ -1,18 +1,30 @@
+const moment = require("moment");
+
 module.exports = {
-    /**
-     * @returns {{statement}}
-     */
     GET_ALL_PRODUCE: () => {
         return {
-            statement: `MATCH (produce:Produce) WITH apoc.map.removeKey(produce {.*}, '') as produce RETURN produce`,
+            statement: `MATCH (user:User)-[:PRODUCES]->(produce:Product) WITH apoc.map.removeKey(produce {.*}, '') as produce RETURN produce`
+        };
+    },
+    GET_ALL_HARVESTS: () => {
+        return {
+            statement: `MATCH (user:User)-[:HARVESTED]->(harvested:Harvested) WITH apoc.map.removeKey(harvested {.*}, '') as harvested RETURN harvested`
         };
     },
     /**
      * @returns {{statement}}
      */
-    GET_ALL_HARVESTED: () => {
+    GET_ALL_PRODUCE_USER: (id) => {
         return {
-            statement: `MATCH (harvested:Harvested) WITH apoc.map.removeKey(harvested {.*}, '') as harvested RETURN harvested`,
+            statement: `MATCH (user:User)-[:PRODUCES]->(produce:Product) WHERE user.id = "${id}" WITH apoc.map.removeKey(produce {.*}, '') as produce RETURN produce`,
+        };
+    },
+    /**
+     * @returns {{statement}}
+     */
+    GET_ALL_HARVESTED_USER: (id) => {
+        return {
+            statement: `MATCH (user:User)-[:HARVESTED]->(harvested:Harvested) WHERE user.id = "${id}" WITH apoc.map.removeKey(harvested {.*}, '') as harvested RETURN harvested`,
         };
     },
     /**
@@ -23,7 +35,7 @@ module.exports = {
     GET_PRODUCE: (id) => {
         return {
             statement: `
-            MATCH (produce:Produce)
+            MATCH (produce:Product)
             WHERE produce.id = "${id}"
             WITH apoc.map.removeKey(produce {.*}, '') as produce
             RETURN produce
@@ -47,14 +59,22 @@ module.exports = {
     },
     /**
      * @param {Object} data
+     * 
+     * @param data.id The produce id
+     * @param data.email The user who produces this produce' email
+     * @param data.image The produce image
+     * @param data.name The produce name
+     * @param data.price The produce price
      *
      * @returns {{statement, data}}
      */
     CREATE_PRODUCE: (data) => {
         return {
             statement: `
-            CREATE (produce:Produce { id: $id, image: $image, name: $name })
-            CREATE (user:User { id: $id })-[:PRODUCES]->(produce)
+            MATCH (user:User { email: $email })
+            WITH user
+            CREATE (produce:Product { id: $id, image: $image, name: $name, price: $price })
+            CREATE (user)-[:PRODUCES]->(produce)
             WITH apoc.map.removeKey(produce {.*}, '') as produce
             RETURN produce
             `,
@@ -64,16 +84,28 @@ module.exports = {
     /**
      * @param {Object} data
      *
-     * @param data.email The users email
-     * @param data.password The users password
+     * @param data.id The harvest id
+     * @param data.yield The harvests yield
+     * @param data.weight The weight of the harvest (optional)
+     * @param data.date The harvest date
+     * @param data.produceName The harvest produce name
+     * @param data.produceImage The harvest produce image
+     * @param data.producePrice The price the harvest produce is sold for
      *
      * @returns {{statement, data}}
      */
     CREATE_HARVESTED: (data) => {
+        if (!data.date) data.date = moment(Date.now()).toString();
+
+        if (!data.weight) data.weight = "Not set";
+        else data.weight = parseInt(data.weight);
+
         return {
             statement: `
-            CREATE (harvested:Harvested { id: $id, items: $items })
-            CREATE (user:User { id: $id })-[:HARVESTED]->(harvested)
+            MATCH (user:User { email: $email })
+            with user
+            CREATE (harvested:Harvested { id: $id, date: $date, yield: $yield, weight: $weight, produceName: $produceName, produceImage: $produceImage, producePrice: $producePrice })
+            CREATE (user)-[:HARVESTED]->(harvested)
             WITH apoc.map.removeKey(harvested {.*}, '') as harvested
             RETURN harvested
             `,

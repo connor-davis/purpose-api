@@ -2,7 +2,7 @@ let { Router } = require('express');
 let { writeTransaction } = require('../../utils/neo4j');
 let { CREATE_PRODUCT } = require('../../queries/productQuerys');
 let { v4 } = require('uuid');
-const { CREATE_PRODUCE } = require('../../queries/ecdQuerys');
+const { CREATE_PRODUCE } = require('../../queries/ecd/ecdQuerys');
 let router = Router();
 
 /**
@@ -34,6 +34,7 @@ router.post('/', async (request, response) => {
     await writeTransaction(
         CREATE_PRODUCE(
             {
+                email: user.email,
                 id,
                 ...body,
             },

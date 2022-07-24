@@ -1,7 +1,7 @@
 let { Router } = require('express');
 let { writeTransaction } = require('../../utils/neo4j');
 let { DELETE_PRODUCT } = require("../../queries/productQuerys");
-const { DELETE_PRODUCE } = require('../../queries/ecdQuerys');
+const { DELETE_PRODUCE } = require('../../queries/ecd/ecdQuerys');
 let router = Router();
 
 /**

@@ -5,7 +5,7 @@ let passport = require('passport');
 let createProduceRoutes = require("./addProduce.routes");
 let deleteProduceRoutes = require("./removeProduce.routes");
 let { readTransaction } = require('../../utils/neo4j');
-const { GET_ALL_PRODUCE, GET_PRODUCE } = require('../../queries/ecdQuerys');
+const { GET_ALL_PRODUCE, GET_PRODUCE, GET_ALL_PRODUCE_USER } = require('../../queries/ecd/ecdQuerys');
 
 /**
  * @openapi
@@ -29,7 +29,7 @@ router.get(
     async (request, response) => {
         let { user } = request;
 
-        await readTransaction(GET_ALL_PRODUCE(user.id), (error, result) => {
+        await readTransaction(GET_ALL_PRODUCE_USER(user.id), (error, result) => {
             if (error)
                 return response
                     .status(200)

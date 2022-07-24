@@ -67,6 +67,18 @@ router.get(
               }
             });
 
+            // MATCH (user:User)-[:PRODUCES]->(produce:Product), apoc.map.removeKey(produce {.*}, '') as produce
+            await readTransaction({
+              statement: `MATCH (user:User)-[:PRODUCES]->(produce:Product) WHERE user.id = "${user.id}" RETURN apoc.map.removeKey(produce {.*}, '') as produce`
+            }, async (error, result) => {
+              if (error) return;
+              else {
+                result.records.map((record) => {
+                  products.push(record.get("produce"));
+                });
+              }
+            });
+
             await readTransaction({
               statement: `MATCH (user:User)-[:USER_SALE]->(sale:Sale)-[:SALE_PRODUCT]->(product:Product) WHERE user.id = "${user.id}" RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product`
             }, async (error, result) => {
@@ -99,7 +111,7 @@ router.get(
 
                 return user;
               });
-              
+
               await generateExcel(usersData, salesData, productsData, (path) => {
                 response.set(
                   'Content-disposition',
@@ -244,7 +256,7 @@ let generateExcel = async (users, sales, products, callback = (path) => { }) => 
 
     userProductsSheet.addRow({
       name: d.name || '',
-      cost: 'R ' + d.cost || '',
+      cost: d.cost ? 'R ' + d.cost || '' : '',
       price: 'R ' + d.price || '',
     });
 

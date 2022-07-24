@@ -13,7 +13,7 @@ module.exports = {
    */
   GET_SALES: (id) => {
     return {
-      statement: `MATCH (user)-[:USER_SALE]->(sale:Sale) WHERE user.id = "${id}" WITH sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product`,
+      statement: `MATCH (user:User)-[:USER_SALE]->(sale:Sale) WHERE user.id = "${id}" WITH sale MATCH (sale)-[:SALE_PRODUCT]->(product:Product) WITH sale, product RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product`,
     };
   },
   /**
@@ -39,17 +39,30 @@ module.exports = {
    * @returns {{statement, data}}
    */
   CREATE_SALE: (data, ownerId) => {
+    let statement = ``;
+
+    if (data.produce !== undefined) statement = `
+      MATCH (user:User {id: "${ownerId}"})
+      MATCH (product:Product {id: "${data.produce.id}"})
+      WITH user, product
+      CREATE (sale:Sale { id: $id, date: $date, numberSold: $numberSold, profit: $profit, industry: $industry })
+      CREATE (sale)-[:SALE_PRODUCT]->(product)
+      CREATE (user)-[:USER_SALE]->(sale)
+      RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product
+    `;
+    else statement = `
+      MATCH (user:User {id: "${ownerId}"})
+      MATCH (product:Product {id: "${data.product.id}"})
+      WITH user, product
+      CREATE (sale:Sale { id: $id, date: $date, numberSold: $numberSold, profit: $profit, industry: $industry })
+      CREATE (sale)-[:SALE_PRODUCT]->(product)
+      CREATE (user)-[:USER_SALE]->(sale)
+      RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product
+    `;
+
     return {
-      statement: `
-                MATCH (user:User {id: "${ownerId}"})
-                MATCH (product:Product {id: "${data.product.id}"})
-                WITH user, product
-                CREATE (sale:Sale { id: $id, date: $date, numberSold: $numberSold, profit: $profit, industry: $industry })
-                CREATE (sale)-[:SALE_PRODUCT]->(product)
-                CREATE (user)-[:USER_SALE]->(sale)
-                RETURN apoc.map.removeKey(sale {.*}, '') as sale, apoc.map.removeKey(product {.*}, '') as product
-            `,
-      data,
+      statement,
+      data
     };
   },
   /**
