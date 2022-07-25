@@ -660,7 +660,7 @@ let generateExcelEcd = async (user, sales, produce, harvests, callback = (path) 
     userHarvestsSheet.addRow({
       date: moment(d.date).format('dddd/MM/YYYY') || '',
       yield: d.yield || '',
-      weight: 'R ' + d.weight || '',
+      weight: d.weight + ' kg' || '',
       produceName: d.produceName || '',
     });
   });
