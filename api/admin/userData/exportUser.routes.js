@@ -649,19 +649,19 @@ let generateExcelEcd = async (user, sales, produce, harvests, callback = (path) 
   userHarvestsSheet.columns = [
     { header: 'Date', key: 'date' },
     {
-      header: 'Number Sold',
-      key: 'numberSold',
+      header: 'Yield',
+      key: 'yield',
     },
-    { header: 'Profit', key: 'profit' },
-    { header: 'Product Name', key: 'productName' },
+    { header: 'Weight', key: 'weight' },
+    { header: 'Produce Name', key: 'produceName' },
   ];
 
   harvests.forEach((d) => {
     userHarvestsSheet.addRow({
       date: moment(d.date).format('dddd/MM/YYYY') || '',
-      numberSold: d.numberSold || '',
-      profit: 'R ' + d.profit || '',
-      productName: d.productName || '',
+      yield: d.yield || '',
+      weight: 'R ' + d.weight || '',
+      produceName: d.produceName || '',
     });
   });
 
