@@ -661,7 +661,7 @@ let generateExcelEcd = async (user, sales, produce, harvests, callback = (path) 
       date: moment(d.date).format('dddd/MM/YYYY') || '',
       numberSold: d.numberSold || '',
       profit: 'R ' + d.profit || '',
-      productName: d.product.name || '',
+      productName: d.productName || '',
     });
   });
 
