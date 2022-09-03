@@ -1,8 +1,6 @@
 let { Router } = require('express');
-let { writeTransaction } = require('../../utils/neo4j');
-let { CREATE_PRODUCT } = require('../../queries/productQuerys');
-let { v4 } = require('uuid');
 let router = Router();
+let Product = require("../../models/product.model");
 
 /**
  * @openapi
@@ -34,29 +32,25 @@ let router = Router();
 router.post('/', async (request, response) => {
   let { body, user } = request;
 
-  let id = v4();
+  const newProduct = new Product({
+    owner: user.email,
+    image: body.image || "",
+    name: body.name,
+    cost: parseFloat(body.cost),
+    price: parseFloat(body.price)
+  });
 
-  await writeTransaction(
-    CREATE_PRODUCT(
-      {
-        id,
-        ...body,
-      },
-      user.id
-    ),
-    (error, result) => {
-      if (error)
-        return response
+  try {
+    newProduct.save();
+
+    const data = newProduct.toJSON();
+
+    return response.status(200).json({ data });
+  } catch (error) {
+    return response
           .status(200)
           .json({ message: 'Error while adding a product.', error });
-      else {
-        let record = result.records[0];
-        let data = record.get('product');
-
-        return response.status(200).json({ data });
-      }
-    }
-  );
+  }
 });
 
 module.exports = router;

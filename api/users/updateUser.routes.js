@@ -2,7 +2,7 @@ let { Router } = require('express');
 let { UPDATE_USER } = require('../../queries/userQuerys');
 let { writeTransaction } = require('../../utils/neo4j');
 let router = Router();
-let logger = require('../../utils/logger');
+let User = require('../../models/user.model');
 
 /**
  * @openapi
@@ -25,23 +25,27 @@ let logger = require('../../utils/logger');
 router.put('/', async (request, response) => {
   let { body, user } = request;
 
-  await writeTransaction(
-    UPDATE_USER({ ...body, email: body.email || user.email }, true),
-    (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while updating a user.', error });
-      else {
-        let record = result.records[0];
-        let data = {};
+  const found = await User.findOne({ email: user.email });
 
-        record.keys.forEach((key) => (data[key] = record.get(key)));
+  if (!found)
+    return response
+      .status(200)
+      .json({ message: 'User not found.', error: 'user-not-found' });
+  else {
+    try {
+      await User.updateOne({ email: user.email }, body);
 
-        return response.status(200).json({ data });
-      }
+      const userData = await User.findOne({ email: user.email });
+
+      return response
+        .status(200)
+        .json({ data: { ...userData.toJSON(), password: undefined } });
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while updating a user.', error });
     }
-  );
+  }
 });
 
 module.exports = router;

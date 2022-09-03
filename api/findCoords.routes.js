@@ -25,8 +25,6 @@ router.get(
   async (request, response) => {
     let { address } = request.params;
 
-    console.log(address);
-
     let aResponse = await axios.get(
       'http://api.positionstack.com/v1/forward?access_key=' +
         process.env.COORD_FINDER_KEY +

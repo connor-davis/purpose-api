@@ -1,8 +1,7 @@
 let Strategy = require('passport-jwt').Strategy,
   ExtractJwt = require('passport-jwt').ExtractJwt;
 let fs = require('fs');
-let { GET_USER } = require('../queries/userQuerys');
-let { readTransaction } = require('../utils/neo4j');
+let User = require("../models/user.model");
 
 let pubKey = fs.readFileSync('certs/publicKey.pem', {
   encoding: 'utf8',
@@ -15,19 +14,8 @@ let options = {
 };
 
 module.exports = new Strategy(options, async (payload, done) => {
-  await readTransaction(GET_USER({ id: payload.sub }), (error, result) => {
-    if (error) {
-      return done(error, null);
-    } else {
-      let record = result.records[0];
-
-      let data = record.get("user");
-
-      if (data) {
-        return done(null, data);
-      } else {
-        return done('no-user', null);
-      }
-    }
-  });
+  const found = await User.findOne({ email: payload.email });
+  
+  if (!found) return done("Unauthorized", null);
+  else return done(null, found.toJSON());
 });

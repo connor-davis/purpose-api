@@ -1,8 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-const { readTransaction } = require('../utils/neo4j');
-const { GET_ANNOUNCEMENTS } = require('../queries/announcementQueries');
+let Announcement = require('../models/announcement.model');
 
 /**
  * @openapi
@@ -24,20 +23,19 @@ router.get(
   '/',
   passport.authenticate('jwt', { session: false }),
   async (request, response) => {
-    await readTransaction(GET_ANNOUNCEMENTS(), (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ error, message: 'Failed to get announcements.' });
-      else {
-        let data = result.records.map((record) => {
-          let announcement = record.get('announcement');
-          return { ...announcement };
-        });
+    if ((await Announcement.countDocuments()) > 0) {
+      const announcements = await Announcement.find();
 
-        return response.status(200).json({ data });
-      }
-    });
+      return response.status(200).json({
+        data: [
+          ...announcements.map((announcement) => {
+            return announcement.toJSON();
+          }),
+        ],
+      });
+    } else {
+      return response.status(200).json({ data: [] });
+    }
   }
 );
 

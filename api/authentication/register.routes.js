@@ -4,8 +4,7 @@ let uuid = require('uuid');
 let bcrypt = require('bcrypt');
 let jwt = require('jsonwebtoken');
 let fs = require('fs');
-let { writeTransaction } = require('../../utils/neo4j');
-let { CREATE_USER } = require('../../queries/userQuerys');
+let User = require("../../models/user.model");
 
 /**
  * @openapi
@@ -34,7 +33,6 @@ router.post('/', async (request, response) => {
   });
 
   let data = {
-    id: uuid.v4(),
     email: body.email,
     password: bcrypt.hashSync(body.password, 2048),
   };
@@ -48,18 +46,26 @@ router.post('/', async (request, response) => {
     { expiresIn: '1d', algorithm: 'RS256' }
   );
 
-  await writeTransaction(CREATE_USER(data), (error, result) => {
-    console.log(error, result);
+  const found = await User.findOne({ email: data.email });
 
-    if (error)
-      return response
-        .status(500)
-        .json({ message: 'Error while registering a new user.', error });
-    else {
-      let record = result.records[0];
-      let data = record.get('user');
+  if (found)
+    return response.status(500).json({
+      message: 'Email already in use. Please use a different email.',
+    });
+  else {
+    const newUser = new User({
+      email: data.email,
+      password: data.password,
+      agreedToTerms: true,
+      completedProfile: false,
+    });
 
-      return response.status(200).json({
+    try {
+      newUser.save();
+
+      const data = newUser.toJSON();
+
+      response.status(200).json({
         message: 'Successfully registered new user.',
         data: {
           ...data,
@@ -67,8 +73,12 @@ router.post('/', async (request, response) => {
           authenticationToken: token,
         },
       });
+    } catch (error) {
+      return response
+        .status(500)
+        .json({ message: 'Error while registering a new user.', error });
     }
-  });
+  }
 });
 
 module.exports = router;

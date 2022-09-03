@@ -20,8 +20,6 @@ let swaggerJsdoc = require('swagger-jsdoc');
 let swaggerUi = require('swagger-ui-express');
 let morgan = require('morgan');
 let chalk = require('chalk');
-let { readTransaction, writeTransaction } = require('./utils/neo4j');
-let { GET_USER, CREATE_USER } = require('./queries/userQuerys');
 let io = require('socket.io')(http, {
   cors: {
     origin: '*',
@@ -29,9 +27,15 @@ let io = require('socket.io')(http, {
   },
 });
 let apiRoutes = require('./api');
-let { v4 } = require('uuid');
 let bcrypt = require('bcrypt');
-const { ADD_ANNOUNCEMENT } = require('./queries/announcementQueries');
+let mongoose = require('mongoose');
+let User = require('./models/user.model');
+
+const client = mongoose.connect('mongodb://localhost:27017/purpose360');
+
+client.then(() => {
+  logger.success('Mongoose connected to MongoDB.');
+});
 
 let secure_port = process.env.HTTP_SECURE_PORT || 443;
 let port = process.env.HTTP_PORT || 80;
@@ -39,32 +43,31 @@ let port = process.env.HTTP_PORT || 80;
 (async () => {
   logger.success(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
 
-  await readTransaction(
-    GET_USER({ email: 'admin@purposeapp' }),
-    async (error, result) => {
-      if (error) return console.log(error);
-      else {
-        let adminUser = result.records[0];
+  const adminFound = await User.findOne({ email: 'admin@purposeapp' });
 
-        if (!adminUser) {
-          logger.warning('Admin user does not exist, creating them now.');
+  if (!adminFound) {
+    logger.warning('Admin user does not exist, creating them now.');
 
-          await writeTransaction(
-            CREATE_USER({
-              id: v4(),
-              email: 'admin@purposeapp',
-              password: bcrypt.hashSync(process.env.ROOT_PASSWORD, 2048),
-              type: 'admin',
-            }),
-            async (error, result) => {
-              if (error) return logger.error(error);
-              else return logger.success('Created admin user.');
-            }
-          );
-        }
-      }
+    const newAdmin = new User({
+      personalDetails: {
+        firstName: 'Purpose',
+        lastName: 'Admin',
+      },
+      email: 'admin@purposeapp',
+      password: bcrypt.hashSync(process.env.ROOT_PASSWORD, 2048),
+      agreedToTerms: true,
+      completedProfile: true,
+      type: 'admin',
+    });
+
+    try {
+      newAdmin.save();
+
+      logger.success('Created admin user.');
+    } catch (error) {
+      logger.error(error);
     }
-  );
+  }
 
   if (!devmode) {
     https = require('https').createServer(
@@ -122,12 +125,10 @@ let port = process.env.HTTP_PORT || 80;
   });
 
   passport.deserializeUser(async (id, done) => {
-    await readTransaction(GET_USER({ id }, true), (error, result) => {
-      let record = result.records[0];
-      let data = record.get('user');
+    const found = await User.findOne({ _id: id });
 
-      return done(null, data);
-    });
+    if (found) return done(null, found.toJSON());
+    else return done(null, id);
   });
 
   passport.use('jwt', JwtStrategy);
@@ -151,24 +152,20 @@ let port = process.env.HTTP_PORT || 80;
     response.render('pages/404.ejs');
   });
 
-  logger.info(
-    'Checking the "documents" directory every hour to delete empty folders.'
-  );
-
   io.on('connection', (socket) => {
     logger.success('a user connected to socket io');
 
-    socket.on('announcement', (data) => {
-      let announcement = {
-        announcementTitle: data.data.announcementTitle,
-        announcementBody: data.data.announcementBody,
-        id: v4(),
-      };
+    // socket.on('announcement', (data) => {
+    //   let announcement = {
+    //     announcementTitle: data.data.announcementTitle,
+    //     announcementBody: data.data.announcementBody,
+    //     id: v4(),
+    //   };
 
-      writeTransaction(ADD_ANNOUNCEMENT(announcement), (error, result) => {});
+    //   writeTransaction(ADD_ANNOUNCEMENT(announcement), (error, result) => {});
 
-      socket.broadcast.emit('announcement', announcement);
-    });
+    //   socket.broadcast.emit('announcement', announcement);
+    // });
   });
 
   http.listen(port, () =>

@@ -1,11 +1,8 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-let { GET_USER } = require('../../queries/userQuerys');
-let { readTransaction } = require('../../utils/neo4j');
-
 let updateUserRoutes = require('./updateUser.routes');
-let deleteUserRoutes = require('./deleteUser.routes');
+let User = require('../../models/user.model');
 
 /**
  * @openapi
@@ -27,22 +24,17 @@ router.get(
   '/',
   passport.authenticate('jwt', { session: false }),
   async (request, response) => {
-    await readTransaction(
-      GET_USER({ email: request.user.email }),
-      (error, result) => {
-        if (error)
-          return response
-            .status(200)
-            .json({ message: 'Error while retrieving user data.', error });
-        else {
-          let record = result.records[0];
+    const found = await User.findOne({ email: request.user.email });
 
-          let data = record.get('user');
-
-          return response.status(200).json({ data });
-        }
-      }
-    );
+    if (!found)
+      return response
+        .status(200)
+        .json({ message: 'User not found.', error: 'user-not-found' });
+    else {
+      return response
+        .status(200)
+        .json({ data: { ...found.toJSON(), password: undefined } });
+    }
   }
 );
 
@@ -50,11 +42,6 @@ router.use(
   '/',
   passport.authenticate('jwt', { session: false }),
   updateUserRoutes
-);
-router.use(
-  '/',
-  passport.authenticate('jwt', { session: false }),
-  deleteUserRoutes
 );
 
 module.exports = router;

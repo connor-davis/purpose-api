@@ -4,8 +4,7 @@ let fs = require('fs');
 let path = require('path');
 let bcrypt = require('bcrypt');
 let passport = require('passport');
-let { GET_USER, UPDATE_USER } = require('../../queries/userQuerys');
-let { readTransaction, writeTransaction } = require('../../utils/neo4j');
+let User = require('../../models/user.model');
 let crypto = require('crypto-js');
 
 /**
@@ -45,22 +44,19 @@ router.post('/', async (request, response) => {
 
   let password = bcrypt.hashSync(newPassword, 2048);
 
-  await writeTransaction(
-    UPDATE_USER({ email, password }),
-    async (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ error, message: 'Failed to reset password.' });
-      else {
-        fs.unlinkSync(path.join(process.cwd(), 'temp', email + '-pwrs.txt'));
+  try {
+    await User.updateOne({ email: email }, { password });
 
-        return response
-          .status(200)
-          .json({ success: 'Reset password successfully.' });
-      }
-    }
-  );
+    fs.unlinkSync(path.join(process.cwd(), 'temp', email + '-pwrs.txt'));
+
+    return response
+      .status(200)
+      .json({ success: 'Reset password successfully.' });
+  } catch (error) {
+    return response
+      .status(200)
+      .json({ error, message: 'Failed to reset password.' });
+  }
 });
 
 /**
@@ -88,48 +84,47 @@ router.get(
 
     if (user.type !== 'admin') return response.status(401);
 
-    await readTransaction(GET_USER({ id }), async (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user.', error });
-      else {
-        let record = result.records[0];
-        let data = record.get('user');
+    const found = await User.findOne({ _id: id });
 
-        if (!fs.existsSync(path.join(process.cwd(), 'temp')))
-          fs.mkdirSync(path.join(process.cwd(), 'temp'));
+    if (!found)
+      return response
+        .status(200)
+        .json({ message: 'User not found', error: 'user-not-found' });
+    else {
+      const data = found.toJSON();
 
-        let tokenGen = crypto.AES.encrypt(
-          data.email,
-          fs.readFileSync(path.join(process.cwd(), 'certs', 'privateKey.pem'), {
-            encoding: 'utf-8',
-          })
-        ).toString();
+      if (!fs.existsSync(path.join(process.cwd(), 'temp')))
+        fs.mkdirSync(path.join(process.cwd(), 'temp'));
 
-        let slash = '/';
-        let regex = new RegExp(slash, 'g');
+      let tokenGen = crypto.AES.encrypt(
+        data.email,
+        fs.readFileSync(path.join(process.cwd(), 'certs', 'privateKey.pem'), {
+          encoding: 'utf-8',
+        })
+      ).toString();
 
-        tokenGen = tokenGen.replace(regex, '#');
+      let slash = '/';
+      let regex = new RegExp(slash, 'g');
 
-        let passwordResetData = {
-          token: tokenGen,
-          user: data,
-        };
+      tokenGen = tokenGen.replace(regex, '#');
 
-        fs.writeFileSync(
-          path.join(process.cwd(), 'temp', data.email + '-pwrs.txt'),
-          JSON.stringify(passwordResetData),
-          { encoding: 'utf-8' }
-        );
+      let passwordResetData = {
+        token: tokenGen,
+        user: data,
+      };
 
-        return response.status(200).json({
-          data: {
-            link: 'https://purpose360.co.za/reset/' + passwordResetData.token,
-          },
-        });
-      }
-    });
+      fs.writeFileSync(
+        path.join(process.cwd(), 'temp', data.email + '-pwrs.txt'),
+        JSON.stringify(passwordResetData),
+        { encoding: 'utf-8' }
+      );
+
+      return response.status(200).json({
+        data: {
+          link: 'https://purpose360.co.za/reset/' + passwordResetData.token,
+        },
+      });
+    }
   }
 );
 

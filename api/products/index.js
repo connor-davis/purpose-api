@@ -1,12 +1,11 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
+let Product = require('../../models/product.model');
 
 let createProductRoutes = require('./createProduct.routes');
 let updateProductRoutes = require('./updateProduct.routes');
 let deleteProductRoutes = require('./deleteProduct.routes');
-let { readTransaction } = require('../../utils/neo4j');
-let { GET_PRODUCTS, GET_PRODUCT } = require('../../queries/productQuerys');
 
 /**
  * @openapi
@@ -30,18 +29,25 @@ router.get(
   async (request, response) => {
     let { user } = request;
 
-    await readTransaction(GET_PRODUCTS(user.id), (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user products.', error });
+    try {
+      const found = await Product.find({ owner: user.email });
+
+      if (!found)
+        return response.status(200).json({
+          data: [],
+        });
       else {
-        let records = result.records;
-        let data = records.map((record) => record.get('product'));
+        const data = found.map((product) => {
+          return { ...product.toJSON() };
+        });
 
         return response.status(200).json({ data });
       }
-    });
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user products.', error });
+    }
   }
 );
 
@@ -67,25 +73,23 @@ router.get(
   async (request, response) => {
     let { params } = request;
 
-    await readTransaction(GET_PRODUCT(params.id), (error, result) => {
-      if (error)
+    try {
+      const found = Product.findOne({ _id: params.id });
+
+      if (!found)
         return response
           .status(200)
-          .json({ message: 'Error while retrieving user products.', error });
+          .json({ message: 'Product not found.', error: 'product-not-found' });
       else {
-        let record = result.records[0];
+        const data = found.toJSON();
 
-        if (record) {
-          let data = record.get('product');
-
-          return response.status(200).json({ data });
-        } else
-          return response.status(200).json({
-            message: 'Product not found.',
-            error: 'product-not-found',
-          });
+        return response.status(200).json({ data });
       }
-    });
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user products.', error });
+    }
   }
 );
 
