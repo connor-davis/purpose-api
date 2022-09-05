@@ -1,11 +1,10 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
+let Harvest = require('harvest');
 
-let createHarvestedRoutes = require("./addHarvested.routes");
-let deleteHarvestedRoutes = require("./removeHarvested.routes");
-let { readTransaction } = require('../../utils/neo4j');
-const { GET_HARVESTED, GET_ALL_HARVESTED, GET_ALL_HARVESTED_USER } = require('../../queries/ecd/ecdQuerys');
+let createHarvestedRoutes = require('./addHarvested.routes');
+let deleteHarvestedRoutes = require('./removeHarvested.routes');
 
 /**
  * @openapi
@@ -24,24 +23,28 @@ const { GET_HARVESTED, GET_ALL_HARVESTED, GET_ALL_HARVESTED_USER } = require('..
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/',
-    passport.authenticate('jwt', { session: false }),
-    async (request, response) => {
-        let { user } = request;
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { user } = request;
 
-        await readTransaction(GET_ALL_HARVESTED_USER(user.id), (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while retrieving user harvests.', error });
-            else {
-                let records = result.records;
-                let data = records.map((record) => record.get('harvested'));
-
-                return response.status(200).json({ data });
-            }
+    try {
+      if ((await Harvest.count()) > 0) {
+        const found = await Harvest.find({ owner: user.email });
+        const data = found.map((harvest) => {
+          return { ...harvest.toJSON() };
         });
+
+        return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
+      }
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user harvests.', error });
     }
+  }
 );
 
 /**
@@ -61,42 +64,41 @@ router.get(
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/:id',
-    passport.authenticate('jwt', { session: false }),
-    async (request, response) => {
-        let { params } = request;
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { params } = request;
 
-        await readTransaction(GET_HARVESTED(params.id), (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while retrieving user harvest.', error });
-            else {
-                let record = result.records[0];
+    try {
+      const found = await Harvest.findOne({ _id: params.id });
 
-                if (record) {
-                    let data = record.get('harvested');
-
-                    return response.status(200).json({ data });
-                } else
-                    return response.status(200).json({
-                        message: 'Harvest not found.',
-                        error: 'harvest-not-found',
-                    });
-            }
+      if (!found) {
+        return response.status(200).json({
+          message: 'Harvest not found.',
+          error: 'harvest-not-found',
         });
+      } else {
+        const data = found.toJSON();
+
+        return response.status(200).json({ data });
+      }
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user harvest.', error });
     }
+  }
 );
 
 router.use(
-    '/',
-    passport.authenticate('jwt', { session: false }),
-    createHarvestedRoutes
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  createHarvestedRoutes
 );
 router.use(
-    '/',
-    passport.authenticate('jwt', { session: false }),
-    deleteHarvestedRoutes
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  deleteHarvestedRoutes
 );
 
 module.exports = router;

@@ -1,9 +1,6 @@
 let { Router } = require('express');
-let { writeTransaction } = require('../../utils/neo4j');
-let { CREATE_PRODUCT } = require('../../queries/productQuerys');
-let { v4 } = require('uuid');
-const { CREATE_HARVESTED } = require('../../queries/ecd/ecdQuerys');
 let router = Router();
+let Harvest = require('../../models/harvest.model');
 
 /**
  * @openapi
@@ -30,32 +27,28 @@ let router = Router();
  *         description: Returns "Unauthorized".
  */
 router.post('/', async (request, response) => {
-    let { body, user } = request;
+  let { body, user } = request;
 
-    let id = v4();
+  if (!body.date) body.date = Date.now();
 
-    await writeTransaction(
-        CREATE_HARVESTED(
-            {
-                email: user.email,
-                id,
-                ...body,
-            },
-            user.id
-        ),
-        (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while adding a harvest.', error });
-            else {
-                let record = result.records[0];
-                let data = record.get('harvested');
+  try {
+    const data = {
+      owner: user.email,
+      yield: body.yield,
+      weight: body.weight,
+      data: body.date,
+      produce: body.produce,
+    };
+    const newHarvest = new Harvest(data);
 
-                return response.status(200).json({ data });
-            }
-        }
-    );
+    await newHarvest.save();
+
+    return response.status(200).json({ data });
+  } catch (error) {
+    return response
+      .status(200)
+      .json({ message: 'Error while adding a harvest.', error });
+  }
 });
 
 module.exports = router;
