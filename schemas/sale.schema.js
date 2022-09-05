@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ProductSchema = require('./product.schema');
 
 const SaleSchema = new mongoose.Schema({
   owner: {
@@ -6,11 +7,11 @@ const SaleSchema = new mongoose.Schema({
     required: true,
   },
   date: {
-    type: Date,
+    type: Number,
     required: true,
   },
   product: {
-    type: String,
+    type: ProductSchema,
     required: true,
   },
   numberSold: {

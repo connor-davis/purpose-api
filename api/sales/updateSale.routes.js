@@ -2,6 +2,7 @@ let { Router } = require('express');
 let router = Router();
 let Sale = require('../../models/sale.model');
 let Product = require('../../models/product.model');
+const moment = require('moment');
 
 /**
  * @openapi
@@ -21,31 +22,30 @@ let Product = require('../../models/product.model');
  *         description: Returns "Unauthorized".
  */
 router.put('/', async (request, response) => {
-  let { body } = request;
+  let { body, user } = request;
 
   if (!body.date) body.date = Date.now();
 
-  try {
-    let data = {
-      owner: user.email,
-      date: body.date,
-      product: body.product,
-      numberSold: body.numberSold,
-      profit: body.profit,
-    };
+  console.log(moment(body.date).format("DD/MM/YYYY"));
 
-    await Sale.updateOne({ _id: body.id }, data);
+  let data = {
+    id: body._id,
+    owner: user.email,
+    date: body.date,
+    product: body.product,
+    numberSold: parseInt(body.numberSold),
+    profit: parseFloat(body.profit),
+  };
 
-    const product = await Product.findOne({ _id: body.product });
-
-    data.product = product.toJSON();
-
-    return response.status(200).json({ data });
-  } catch (error) {
-    return response
-      .status(200)
-      .json({ message: 'Error while updating a sale.', error });
-  }
+  Sale.updateOne({ _id: body._id }, data)
+    .then(() => {
+      return response.status(200).json({ data });
+    })
+    .catch((error) => {
+      return response
+        .status(200)
+        .json({ message: 'Error while updating a sale.', error });
+    });
 });
 
 module.exports = router;

@@ -2,7 +2,8 @@ let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
 let Sale = require('../../models/sale.model');
-let Product = require("../../models/product.model");
+let Product = require('../../models/product.model');
+let moment = require("moment");
 
 let createSaleRoutes = require('./createSale.routes');
 let updateSaleRoutes = require('./updateSale.routes');
@@ -35,17 +36,17 @@ router.get(
         const sales = await Sale.find({ owner: user.email });
         const data = sales.map((sale) => {
           let saleData = sale.toJSON();
-          let product = await Product.findOne({ _id: sale.product });
 
           return {
             ...saleData,
-            product: product.toJSON()
-          }
+          };
         });
 
         return response.status(200).json({ data });
       } catch (error) {
-        return response.status(200).json({ message: "Error while finding user sales.", error });
+        return response
+          .status(200)
+          .json({ message: 'Error while finding user sales.', error });
       }
     } else {
       return response.status(200).json({ data: [] });
@@ -78,15 +79,19 @@ router.get(
     try {
       const found = await Sale.findOne({ _id: params.id });
 
-      if (!found) return response.status(200).json({ message: "Sale not found.", error: "sale-not-found" });
+      if (!found)
+        return response
+          .status(200)
+          .json({ message: 'Sale not found.', error: 'sale-not-found' });
       else {
-        const product = await Product.findOne({ _id: found.toJSON().product });
-        const data = {...found.toJSON(), product };
+        const data = { ...found.toJSON() };
 
         return response.status(200).json({ data });
       }
     } catch (error) {
-      return response.status(200).json({ message: "Error while retrieving user sale.", error });
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user sale.', error });
     }
   }
 );

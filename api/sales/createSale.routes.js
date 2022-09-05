@@ -35,8 +35,8 @@ router.post('/', async (request, response) => {
     owner: user.email,
     date: body.date,
     product: body.product,
-    numberSold: body.numberSold,
-    profit: body.profit,
+    numberSold: parseInt(body.numberSold),
+    profit: parseFloat(body.profit),
   };
 
   const newSale = new Sale(data);
