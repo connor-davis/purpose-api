@@ -1,11 +1,10 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
+let Produce = require('../../models/produce.model');
 
-let createProduceRoutes = require("./addProduce.routes");
-let deleteProduceRoutes = require("./removeProduce.routes");
-let { readTransaction } = require('../../utils/neo4j');
-const { GET_ALL_PRODUCE, GET_PRODUCE, GET_ALL_PRODUCE_USER } = require('../../queries/ecd/ecdQuerys');
+let createProduceRoutes = require('./addProduce.routes');
+let deleteProduceRoutes = require('./removeProduce.routes');
 
 /**
  * @openapi
@@ -24,24 +23,28 @@ const { GET_ALL_PRODUCE, GET_PRODUCE, GET_ALL_PRODUCE_USER } = require('../../qu
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/',
-    passport.authenticate('jwt', { session: false }),
-    async (request, response) => {
-        let { user } = request;
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { user } = request;
 
-        await readTransaction(GET_ALL_PRODUCE_USER(user.id), (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while retrieving user produce.', error });
-            else {
-                let records = result.records;
-                let data = records.map((record) => record.get('produce'));
-
-                return response.status(200).json({ data });
-            }
+    try {
+      if ((await Produce.count()) > 0) {
+        const found = await Produce.find({ owner: user.email });
+        const data = found.map((produce) => {
+          return { ...produce.toJSON() };
         });
+
+        return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
+      }
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user produce.', error });
     }
+  }
 );
 
 /**
@@ -61,42 +64,41 @@ router.get(
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/:id',
-    passport.authenticate('jwt', { session: false }),
-    async (request, response) => {
-        let { params } = request;
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { params } = request;
 
-        await readTransaction(GET_PRODUCE(params.id), (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while retrieving user produce.', error });
-            else {
-                let record = result.records[0];
+    try {
+      const found = await Produce.findOne({ _id: params.id });
 
-                if (record) {
-                    let data = record.get('produce');
-
-                    return response.status(200).json({ data });
-                } else
-                    return response.status(200).json({
-                        message: 'Produce not found.',
-                        error: 'produce-not-found',
-                    });
-            }
+      if (!found) {
+        return response.status(200).json({
+          message: 'Produce not found.',
+          error: 'produce-not-found',
         });
+      } else {
+        const data = found.toJSON();
+
+        return response.status(200).json({ data });
+      }
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user produce.', error });
     }
+  }
 );
 
 router.use(
-    '/',
-    passport.authenticate('jwt', { session: false }),
-    createProduceRoutes
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  createProduceRoutes
 );
 router.use(
-    '/',
-    passport.authenticate('jwt', { session: false }),
-    deleteProduceRoutes
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  deleteProduceRoutes
 );
 
 module.exports = router;

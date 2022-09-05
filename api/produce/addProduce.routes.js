@@ -1,9 +1,6 @@
 let { Router } = require('express');
-let { writeTransaction } = require('../../utils/neo4j');
-let { CREATE_PRODUCT } = require('../../queries/productQuerys');
-let { v4 } = require('uuid');
-const { CREATE_PRODUCE } = require('../../queries/ecd/ecdQuerys');
 let router = Router();
+let Produce = require('../../models/produce.model');
 
 /**
  * @openapi
@@ -27,32 +24,25 @@ let router = Router();
  *         description: Returns "Unauthorized".
  */
 router.post('/', async (request, response) => {
-    let { body, user } = request;
+  let { body, user } = request;
 
-    let id = v4();
+  try {
+    const data = {
+      owner: user.email,
+      image: body.image,
+      name: body.name,
+      price: body.price,
+    };
+    const newProduce = new Produce(data);
 
-    await writeTransaction(
-        CREATE_PRODUCE(
-            {
-                email: user.email,
-                id,
-                ...body,
-            },
-            user.id
-        ),
-        (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while adding a produce.', error });
-            else {
-                let record = result.records[0];
-                let data = record.get('produce');
+    await newProduce.save();
 
-                return response.status(200).json({ data });
-            }
-        }
-    );
+    return response.status(200).json({ data });
+  } catch (error) {
+    return response
+      .status(200)
+      .json({ message: 'Error while adding a produce.', error });
+  }
 });
 
 module.exports = router;
