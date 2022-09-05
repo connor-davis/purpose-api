@@ -34,11 +34,12 @@ router.post('/', async (request, response) => {
   try {
     const data = {
       owner: user.email,
-      yield: body.yield,
-      weight: body.weight,
-      data: body.date,
+      yield: parseFloat(body.yield),
+      weight: parseFloat(body.weight),
+      date: body.date,
       produce: body.produce,
     };
+
     const newHarvest = new Harvest(data);
 
     await newHarvest.save();

@@ -34,10 +34,6 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
-  type: {
-    type: String,
-    required: false,
-  },
   firstName: {
     type: String,
     required: false,

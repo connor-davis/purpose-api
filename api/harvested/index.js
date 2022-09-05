@@ -1,7 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-let Harvest = require('harvest');
+let Harvest = require('../../models/harvest.model');
 
 let createHarvestedRoutes = require('./addHarvested.routes');
 let deleteHarvestedRoutes = require('./removeHarvested.routes');

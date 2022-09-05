@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ProduceSchema = require('./produce.schema');
 
 const HarvestSchema = new mongoose.Schema({
   owner: {
@@ -18,7 +19,7 @@ const HarvestSchema = new mongoose.Schema({
     required: true,
   },
   produce: {
-    type: String,
+    type: ProduceSchema,
     required: true,
   },
 });
