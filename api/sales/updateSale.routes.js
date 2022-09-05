@@ -1,10 +1,7 @@
 let { Router } = require('express');
-let { writeTransaction } = require('../../utils/neo4j');
-const {
-  DELETE_SALE,
-  CREATE_SALE,
-} = require('../../queries/salesQuerys');
 let router = Router();
+let Sale = require('../../models/sale.model');
+let Product = require('../../models/product.model');
 
 /**
  * @openapi
@@ -28,36 +25,27 @@ router.put('/', async (request, response) => {
 
   if (!body.date) body.date = Date.now();
 
-  body.industry = request.user.type;
+  try {
+    let data = {
+      owner: user.email,
+      date: body.date,
+      product: body.product,
+      numberSold: body.numberSold,
+      profit: body.profit,
+    };
 
-  await writeTransaction(DELETE_SALE(body.id), async (error, result) => {
-    if (error)
-      return response
-        .status(200)
-        .json({ message: 'Error while updating a sale.', error });
-    else {
-      await writeTransaction(
-        CREATE_SALE(body, request.user.id),
-        (error, result) => {
-          console.log(error, result);
-          
-          if (error)
-            return response
-              .status(200)
-              .json({ message: 'Error while updating a sale.', error });
-          else {
-            let record = result.records[0];
-            let data = {
-              ...record.get('sale'),
-              product: record.get('product'),
-            };
+    await Sale.updateOne({ _id: body.id }, data);
 
-            return response.status(200).json({ data });
-          }
-        }
-      );
-    }
-  });
+    const product = await Product.findOne({ _id: body.product });
+
+    data.product = product.toJSON();
+
+    return response.status(200).json({ data });
+  } catch (error) {
+    return response
+      .status(200)
+      .json({ message: 'Error while updating a sale.', error });
+  }
 });
 
 module.exports = router;

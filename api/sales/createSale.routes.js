@@ -1,8 +1,6 @@
 let { Router } = require('express');
-let { writeTransaction } = require('../../utils/neo4j');
-let { v4 } = require('uuid');
-let { CREATE_SALE } = require('../../queries/salesQuerys');
 let router = Router();
+let Sale = require('../../models/sale.model');
 
 /**
  * @openapi
@@ -31,35 +29,26 @@ let router = Router();
 router.post('/', async (request, response) => {
   let { body, user } = request;
 
-  let id = v4();
-  let date;
-
   if (!body.date) body.date = Date.now();
 
-  try {
-    await writeTransaction(
-      CREATE_SALE(
-        {
-          id,
-          ...body,
-        },
-        user.id
-      ),
-      (error, result) => {
-        if (error)
-          return response
-            .status(200)
-            .json({ message: 'Error while adding a sale.', error });
-        else {
-          let record = result.records[0];
-          let data = { ...record.get('sale'), product: record.get('product') };
+  let data = {
+    owner: user.email,
+    date: body.date,
+    product: body.product,
+    numberSold: body.numberSold,
+    profit: body.profit,
+  };
 
-          return response.status(200).json({ data });
-        }
-      }
-    );
+  const newSale = new Sale(data);
+
+  try {
+    await newSale.save();
+
+    return response.status(200).json({ data });
   } catch (error) {
-    console.log(error);
+    return response
+      .status(200)
+      .json({ message: 'Unable to create a new sale.', error });
   }
 });
 

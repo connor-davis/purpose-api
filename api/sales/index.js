@@ -1,12 +1,12 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
+let Sale = require('../../models/sale.model');
+let Product = require("../../models/product.model");
 
 let createSaleRoutes = require('./createSale.routes');
 let updateSaleRoutes = require('./updateSale.routes');
 let deleteSaleRoutes = require('./deleteSale.routes');
-let { readTransaction } = require('../../utils/neo4j');
-let { GET_SALES, GET_SALE } = require('../../queries/salesQuerys');
 
 /**
  * @openapi
@@ -30,20 +30,26 @@ router.get(
   async (request, response) => {
     let { user } = request;
 
-    await readTransaction(GET_SALES(user.id), (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user userData.', error });
-      else {
-        let records = result.records;
-        let data = records.map((record) => {
-          return { ...record.get('sale'), product: record.get('product') };
+    if ((await Sale.count()) > 0) {
+      try {
+        const sales = await Sale.find({ owner: user.email });
+        const data = sales.map((sale) => {
+          let saleData = sale.toJSON();
+          let product = await Product.findOne({ _id: sale.product });
+
+          return {
+            ...saleData,
+            product: product.toJSON()
+          }
         });
 
         return response.status(200).json({ data });
+      } catch (error) {
+        return response.status(200).json({ message: "Error while finding user sales.", error });
       }
-    });
+    } else {
+      return response.status(200).json({ data: [] });
+    }
   }
 );
 
@@ -69,25 +75,19 @@ router.get(
   async (request, response) => {
     let { params } = request;
 
-    await readTransaction(GET_SALE(params.id), (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user sale.', error });
+    try {
+      const found = await Sale.findOne({ _id: params.id });
+
+      if (!found) return response.status(200).json({ message: "Sale not found.", error: "sale-not-found" });
       else {
-        let record = result.records[0];
+        const product = await Product.findOne({ _id: found.toJSON().product });
+        const data = {...found.toJSON(), product };
 
-        if (record) {
-          let data = { ...record.get('sale'), product: record.get('product') };
-
-          return response.status(200).json({ data });
-        } else
-          return response.status(200).json({
-            message: 'Sale not found.',
-            error: 'sale-not-found',
-          });
+        return response.status(200).json({ data });
       }
-    });
+    } catch (error) {
+      return response.status(200).json({ message: "Error while retrieving user sale.", error });
+    }
   }
 );
 
