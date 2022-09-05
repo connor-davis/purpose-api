@@ -33,7 +33,7 @@ router.post('/', async (request, response) => {
 
   try {
     const data = {
-      owner: user.email,
+      owner: user._id,
       yield: parseFloat(body.yield),
       weight: parseFloat(body.weight),
       date: body.date,

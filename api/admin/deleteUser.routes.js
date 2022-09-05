@@ -20,10 +20,10 @@ let User = require('../../models/user.model');
  *       401:
  *         description: Returns "Unauthorized".
  */
-router.delete('/:email', async (request, response) => {
+router.delete('/:id', async (request, response) => {
   let { params } = request;
 
-  const found = await User.findOne({ email: params.email });
+  const found = await User.findOne({ _id: params.id });
 
   if (!found)
     return response
@@ -31,7 +31,7 @@ router.delete('/:email', async (request, response) => {
       .json({ message: 'User not found.', error: 'user-not-found' });
   else {
     try {
-      await User.deleteOne({ email: params.email });
+      await User.deleteOne({ _id: params.id });
 
       return response.status(200).send('success');
     } catch (error) {

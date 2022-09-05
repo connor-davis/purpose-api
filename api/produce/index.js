@@ -30,7 +30,7 @@ router.get(
 
     try {
       if ((await Produce.count()) > 0) {
-        const found = await Produce.find({ owner: user.email });
+        const found = await Produce.find({ owner: user._id });
         const data = found.map((produce) => {
           return { ...produce.toJSON() };
         });

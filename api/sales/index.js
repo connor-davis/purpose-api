@@ -33,7 +33,7 @@ router.get(
 
     if ((await Sale.count()) > 0) {
       try {
-        const sales = await Sale.find({ owner: user.email });
+        const sales = await Sale.find({ owner: user._id });
         const data = sales.map((sale) => {
           let saleData = sale.toJSON();
 

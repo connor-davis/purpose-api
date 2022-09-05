@@ -30,7 +30,7 @@ router.get(
     let { user } = request;
 
     try {
-      const found = await Product.find({ owner: user.email });
+      const found = await Product.find({ owner: user._id });
 
       if (!found)
         return response.status(200).json({

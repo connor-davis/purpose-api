@@ -34,6 +34,14 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
   },
+  lat: {
+    type: Number,
+    required: false,
+  },
+  lng: {
+    type: Number,
+    required: false,
+  },
   firstName: {
     type: String,
     required: false,

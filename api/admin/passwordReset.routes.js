@@ -9,7 +9,7 @@ let crypto = require('crypto-js');
 
 /**
  * @openapi
- * /api/v1/passwordReset/:
+ * /api/v1/admin/passwordReset/:
  *   post:
  *     description: Reset a users password in the database.
  *     tags: [Users]
@@ -61,7 +61,7 @@ router.post('/', async (request, response) => {
 
 /**
  * @openapi
- * /api/v1/passwordReset/:id:
+ * /api/v1/admin/passwordReset/:id:
  *   get:
  *     description: Get all users.
  *     tags: [Admin]
@@ -82,7 +82,7 @@ router.get(
     let { user } = request;
     let { id } = request.params;
 
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
     const found = await User.findOne({ _id: id });
 

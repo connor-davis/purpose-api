@@ -25,7 +25,9 @@ let User = require('../../models/user.model');
 router.put('/', async (request, response) => {
   let { body, user } = request;
 
-  const found = await User.findOne({ email: user.email });
+  const found = await User.findOne({ _id: body._id });
+
+  delete body.__v;
 
   if (!found)
     return response
@@ -33,9 +35,9 @@ router.put('/', async (request, response) => {
       .json({ message: 'User not found.', error: 'user-not-found' });
   else {
     try {
-      await User.updateOne({ email: user.email }, body);
+      await User.updateOne({ _id: body._id }, body);
 
-      const userData = await User.findOne({ email: user.email });
+      const userData = await User.findOne({ _id: body._id });
 
       return response
         .status(200)

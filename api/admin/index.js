@@ -26,13 +26,14 @@ router.get(
   async (request, response) => {
     let { user } = request;
 
-    console.log(user);
-
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
     try {
-      if ((await User.countDocuments()) > 1) {
-        let data = await User.find();
+      if ((await User.count()) > 1) {
+        const found = await User.find();
+        const data = found.map((user) => {
+          return { ...user.toJSON() };
+        });
 
         return response.status(200).json({
           data: [
@@ -75,7 +76,7 @@ router.get(
     let { user } = request;
     let { id } = request.params;
 
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
     const found = await User.findOne({ _id: id });
 

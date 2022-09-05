@@ -30,7 +30,7 @@ router.get(
 
     try {
       if ((await Harvest.count()) > 0) {
-        const found = await Harvest.find({ owner: user.email });
+        const found = await Harvest.find({ owner: user._id });
         const data = found.map((harvest) => {
           return { ...harvest.toJSON() };
         });

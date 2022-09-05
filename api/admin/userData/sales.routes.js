@@ -1,8 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-let { readTransaction } = require('../../../utils/neo4j');
-let { GET_SALES, GET_ALL_SALES } = require('../../../queries/salesQuerys');
+let Sale = require('../../../models/sale.model');
 
 /**
  * @openapi
@@ -26,24 +25,24 @@ router.get(
   async (request, response) => {
     let { user } = request;
 
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
-    await readTransaction(GET_ALL_SALES(), (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user data.', error });
-      else {
-        let data = result.records.map((record) => {
-          let sale = record.get('sale');
-          let product = record.get('product');
-
-          return { ...sale, product };
+    try {
+      if ((await Sale.count()) > 0) {
+        const found = await Sale.find();
+        const data = found.map((sale) => {
+          return { ...sale.toJSON() };
         });
 
         return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
       }
-    });
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user data.', error });
+    }
   }
 );
 
@@ -70,24 +69,24 @@ router.get(
     let { user } = request;
     let { id } = request.params;
 
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
-    await readTransaction(GET_SALES(id), (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user data.', error });
-      else {
-        let data = result.records.map((record) => {
-          let sale = record.get('sale');
-          let product = record.get('product');
-
-          return { ...sale, product };
+    try {
+      if ((await Sale.count({ owner: id })) > 0) {
+        const found = await Sale.find({ owner: id });
+        const data = found.map((sale) => {
+          return { ...sale.toJSON() };
         });
 
         return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
       }
-    });
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user data.', error });
+    }
   }
 );
 

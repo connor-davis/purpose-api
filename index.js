@@ -41,6 +41,10 @@ let secure_port = process.env.HTTP_SECURE_PORT || 443;
 let port = process.env.HTTP_PORT || 80;
 
 (async () => {
+  fs.readdirSync(process.cwd() + '/temp').forEach((path) =>
+    fs.unlinkSync(process.cwd() + '/temp/' + path)
+  );
+
   logger.success(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
 
   const adminFound = await User.findOne({ email: 'admin@purposeapp' });
@@ -57,7 +61,7 @@ let port = process.env.HTTP_PORT || 80;
       password: bcrypt.hashSync(process.env.ROOT_PASSWORD, 2048),
       agreedToTerms: true,
       completedProfile: true,
-      type: 'admin',
+      businessType: 'admin',
     });
 
     try {

@@ -33,7 +33,7 @@ router.post('/', async (request, response) => {
   let { body, user } = request;
 
   const newProduct = new Product({
-    owner: user.email,
+    owner: user._id,
     image: body.image || "",
     name: body.name,
     cost: parseFloat(body.cost),

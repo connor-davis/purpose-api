@@ -1,9 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-let { readTransaction } = require('../../../utils/neo4j');
-let { GET_SALES, GET_ALL_SALES } = require('../../../queries/salesQuerys');
-const { GET_ALL_HARVESTS } = require('../../../queries/ecd/ecdQuerys');
+let Harvest = require('../../../models/harvest.model');
 
 /**
  * @openapi
@@ -22,29 +20,30 @@ const { GET_ALL_HARVESTS } = require('../../../queries/ecd/ecdQuerys');
  *         description: Returns "Unauthorized".
  */
 router.get(
-    '/harvests',
-    passport.authenticate('jwt', { session: false }),
-    async (request, response) => {
-        let { user } = request;
+  '/harvests',
+  passport.authenticate('jwt', { session: false }),
+  async (request, response) => {
+    let { user } = request;
 
-        if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
-        await readTransaction(GET_ALL_HARVESTS(), (error, result) => {
-            if (error)
-                return response
-                    .status(200)
-                    .json({ message: 'Error while retrieving user data.', error });
-            else {
-                let data = result.records.map((record) => {
-                    let harvested = record.get('harvested');
-
-                    return { ...harvested };
-                });
-
-                return response.status(200).json({ data });
-            }
+    try {
+      if ((await Harvest.count()) > 0) {
+        const found = await Harvest.find();
+        const data = found.map((harvest) => {
+          return { ...harvest.toJSON() };
         });
+
+        return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
+      }
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user data.', error });
     }
+  }
 );
 
 module.exports = router;

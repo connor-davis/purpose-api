@@ -5,8 +5,7 @@ let fs = require('fs');
 let path = require('path');
 let addDocumentsRoutes = require('./addDocuments.routes');
 let removeDocumentsRoutes = require('./removeDocuments.routes');
-const { readTransaction } = require('../../utils/neo4j');
-const { GET_USER } = require('../../queries/userQuerys');
+let User = require("../../models/user.model");
 
 /**
  * @openapi
@@ -55,26 +54,24 @@ router.get(
         return response.status(200).json({ folders: foldersData });
 
       foldersList.map(async (folder) => {
-        await readTransaction(
-          GET_USER({ id: folder.name }),
-          (error, result) => {
-            if (error) return console.log(error);
+        try {
+          const found = await User.findOne({ _id: folder.name });
+          const user = found.toJSON();
 
-            let record = result.records[0];
-
-            if (record) {
-              foldersData.push({
-                name: folder.name,
-                fileCount: folder.files.length,
-                owner: record.get('user'),
-              });
-            }
-
-            if (foldersData.length === foldersList.length) {
-              return response.status(200).json({ folders: foldersData });
-            }
+          if (found) {
+            foldersData.push({
+              name: folder.name,
+              fileCount: folder.files.length,
+              owner: user,
+            });
           }
-        );
+
+          if (foldersData.length === foldersList.length) {
+            return response.status(200).json({ folders: foldersData });
+          }
+        } catch (error) {
+          return response.status(200).json({ message: "Failed to retrieve user documents.", error });
+        }
       });
     }
   }

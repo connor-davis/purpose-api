@@ -1,11 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-let { readTransaction } = require('../../../utils/neo4j');
-let { GET_SALES } = require('../../../queries/salesQuerys');
-const { GET_PRODUCTS } = require('../../../queries/productQuerys');
-const { GET_USER } = require('../../../queries/userQuerys');
-const { GET_ALL_PRODUCE_USER } = require('../../../queries/ecd/ecdQuerys');
+let Product = require('../../../models/product.model');
 
 /**
  * @openapi
@@ -30,48 +26,24 @@ router.get(
     let { user } = request;
     let { id } = request.params;
 
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
-    await readTransaction(GET_USER({ id }, true), async (error, result) => {
-      if (error)
-        return response
-          .status(200)
-          .json({ message: 'Error while retrieving user data.', error });
-      else {
-        let record = result.records[0];
-        let data = { ...record.get("user") };
+    try {
+      if ((await Product.count({ owner: id })) > 0) {
+        const found = await Product.find({ owner: id });
+        const data = found.map((product) => {
+          return { ...product.toJSON() };
+        });
 
-        if (data.type === "earlyChildhoodDevelopmentCenter") {
-          await readTransaction(GET_ALL_PRODUCE_USER(id), async (error, result) => {
-            if (error)
-              return response
-                .status(200)
-                .json({ message: 'Error while retrieving user data.', error });
-            else {
-              let data = result.records.map((record) => {
-                return record.get('produce');
-              });
-
-              return response.status(200).json({ data });
-            }
-          });
-        } else {
-          await readTransaction(GET_PRODUCTS(id), (error, result) => {
-            if (error)
-              return response
-                .status(200)
-                .json({ message: 'Error while retrieving user data.', error });
-            else {
-              let data = result.records.map((record) => {
-                return record.get('product');
-              });
-
-              return response.status(200).json({ data });
-            }
-          });
-        }
+        return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
       }
-    })
+    } catch (error) {
+      return response
+        .status(200)
+        .json({ message: 'Error while retrieving user data.', error });
+    }
   }
 );
 

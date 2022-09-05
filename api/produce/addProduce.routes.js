@@ -28,7 +28,7 @@ router.post('/', async (request, response) => {
 
   try {
     const data = {
-      owner: user.email,
+      owner: user._id,
       image: body.image,
       name: body.name,
       price: body.price,

@@ -32,7 +32,7 @@ router.post('/', async (request, response) => {
   if (!body.date) body.date = Date.now();
 
   let data = {
-    owner: user.email,
+    owner: user._id,
     date: body.date,
     product: body.product,
     numberSold: parseInt(body.numberSold),

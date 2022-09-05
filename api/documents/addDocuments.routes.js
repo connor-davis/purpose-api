@@ -27,12 +27,12 @@ let upload = multer({ dest: path.join(process.cwd(), 'temp') });
 router.post('/', upload.single('file'), async (request, response) => {
   let { file, user } = request;
 
-  if (!fs.existsSync(path.join(process.cwd(), 'documents', user.id)))
-    fs.mkdirSync(path.join(process.cwd(), 'documents', user.id));
+  if (!fs.existsSync(path.join(process.cwd(), 'documents', user._id.toString())))
+    fs.mkdirSync(path.join(process.cwd(), 'documents', user._id.toString()));
 
   try {
     await fs.writeFileSync(
-      path.join(process.cwd(), 'documents', user.id, file.originalname),
+      path.join(process.cwd(), 'documents', user._id.toString(), file.originalname),
       await fs.readFileSync(file.path)
     );
 

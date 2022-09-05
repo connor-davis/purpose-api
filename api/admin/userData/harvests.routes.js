@@ -1,9 +1,7 @@
 let { Router } = require('express');
 let router = Router();
 let passport = require('passport');
-let { readTransaction } = require('../../../utils/neo4j');
-let { GET_SALES } = require('../../../queries/salesQuerys');
-const { GET_ALL_HARVESTED_USER } = require('../../../queries/ecd/ecdQuerys');
+let Harvest = require("../../../models/harvest.model");
 
 /**
  * @openapi
@@ -28,21 +26,24 @@ router.get(
     let { user } = request;
     let { id } = request.params;
 
-    if (user.type !== 'admin') return response.status(401);
+    if (user.businessType !== 'admin') return response.status(401);
 
-    await readTransaction(GET_ALL_HARVESTED_USER(id), (error, result) => {
-      if (error)
-        return response
+    try {
+      if (await Harvest.count({ owner: id }) > 0) {
+        const found = await Harvest.find({ owner: id });
+        const data = found.map((harvest) => {
+          return {...harvest.toJSON()};
+        });
+        
+        return response.status(200).json({ data });
+      } else {
+        return response.status(200).json({ data: [] });
+      }
+    } catch (error) {
+      return response
           .status(200)
           .json({ message: 'Error while retrieving user data.', error });
-      else {
-        let data = result.records.map((record) => {
-          return record.get('harvested');
-        });
-
-        return response.status(200).json({ data });
-      }
-    });
+    }
   }
 );
 
