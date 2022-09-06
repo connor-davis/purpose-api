@@ -1,6 +1,10 @@
 let { Router } = require('express');
 let router = Router();
 let User = require('../../models/user.model');
+let Harvest = require('../../models/harvest.model');
+let Produce = require('../../models/produce.model');
+let Product = require('../../models/product.model');
+let Sale = require('../../models/sale.model');
 
 /**
  * @openapi
@@ -31,6 +35,10 @@ router.delete('/:id', async (request, response) => {
       .json({ message: 'User not found.', error: 'user-not-found' });
   else {
     try {
+      await Harvest.deleteMany({ owner: params.id });
+      await Produce.deleteMany({ owner: params.id });
+      await Product.deleteMany({ owner: params.id });
+      await Sale.deleteMany({ owner: params.id });
       await User.deleteOne({ _id: params.id });
 
       return response.status(200).send('success');
