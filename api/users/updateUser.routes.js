@@ -1,6 +1,4 @@
 let { Router } = require('express');
-let { UPDATE_USER } = require('../../queries/userQuerys');
-let { writeTransaction } = require('../../utils/neo4j');
 let router = Router();
 let User = require('../../models/user.model');
 
