@@ -155,6 +155,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  location: {
+    type: String,
+    required: false
+  }
 });
 
 module.exports = UserSchema;
