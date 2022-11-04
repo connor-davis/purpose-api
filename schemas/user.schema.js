@@ -92,7 +92,7 @@ const UserSchema = new mongoose.Schema({
     default: false,
   },
   businessRegistrationNumber: {
-    type: Number,
+    type: String,
     required: false,
   },
   businessNumberOfEmployees: {
